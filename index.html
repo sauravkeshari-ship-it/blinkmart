@@ -1,0 +1,2423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlinkMart — AI Shopping Assistant Case Study</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --brand-yellow: #F8CB46;
+      --primary-green: #318615;
+      --primary-dark-green: #1A7A28;
+      --primary-main: #148A09;
+      --ai-dark: #000000;
+      --ai-card-dark: #171725;
+      --ai-border-dark: #282837;
+      --ai-input-border: #434e58;
+      --white: #FEFEFE;
+      --neutral-10: #FFFFFF;
+      --neutral-20: #F5F5F5;
+      --neutral-30: #EDEDED;
+      --neutral-40: #E0E0E0;
+      --neutral-100: #0A0A0A;
+      --text-dark: #111111;
+      --text-secondary: #78828A;
+      --text-hint: #A7A1B2;
+      --error-red: #E53935;
+      --dark-blue: #24223B;
+      --font-primary: 'Plus Jakarta Sans', sans-serif;
+      --font-secondary: 'Noto Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-primary);
+      background: #0a0a0f;
+      color: #e0e0e0;
+      overflow-x: hidden;
+    }
+
+    /* ════════════════════════════════════
+       HERO — Split Layout
+       ════════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 80px;
+      padding: 60px 80px;
+      background: linear-gradient(135deg, #0a0a0f 0%, #111122 50%, #0a0a0f 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(248,203,70,0.08) 0%, transparent 60%);
+      top: -300px; left: -200px;
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(123,97,255,0.06) 0%, transparent 60%);
+      bottom: -200px; right: -100px;
+      border-radius: 50%;
+    }
+
+    /* LEFT — Project Info */
+    .hero-info {
+      max-width: 460px;
+      flex-shrink: 0;
+      z-index: 2;
+    }
+    .hero-tag {
+      display: inline-block;
+      padding: 6px 16px;
+      border: 1px solid #2a2a3e;
+      border-radius: 100px;
+      font-size: 11px;
+      color: #777;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 28px;
+      background: rgba(255,255,255,0.02);
+    }
+    .hero-title {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero-title .blink { color: #fff; }
+    .hero-title .mart { color: var(--primary-green); }
+    .hero-desc {
+      font-size: 17px;
+      color: #888;
+      font-weight: 400;
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .meta-item .label {
+      font-size: 10px;
+      color: #555;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .meta-item .value {
+      font-size: 13px;
+      color: #aaa;
+      font-weight: 500;
+    }
+
+    /* RIGHT — Prototype Viewer */
+    .proto-viewer {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      z-index: 2;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      border-radius: 40px 40px 50px 50px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 30px 100px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(255,255,255,0.06),
+        inset 0 0 0 1px rgba(255,255,255,0.03);
+      background: #000;
+    }
+    .phone-frame .screens-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    .phone-frame .proto-screen {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      transform: scale(0.97);
+      overflow: hidden;
+    }
+    .phone-frame .proto-screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+      z-index: 5;
+    }
+
+    /* Navigation Controls */
+    .proto-nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid #2a2a3e;
+      background: rgba(255,255,255,0.03);
+      color: #888;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 18px;
+    }
+    .nav-btn:hover {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border-color: #444;
+    }
+    .nav-btn:active { transform: scale(0.95); }
+    .nav-btn.disabled {
+      opacity: 0.3;
+      cursor: default;
+      pointer-events: none;
+    }
+    .screen-indicator {
+      text-align: center;
+      min-width: 140px;
+    }
+    .screen-indicator .screen-num {
+      font-size: 13px;
+      color: var(--primary-green);
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .screen-indicator .screen-name {
+      font-size: 12px;
+      color: #666;
+      margin-top: 2px;
+    }
+    /* Dot progress */
+    .dot-progress {
+      display: flex;
+      gap: 5px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .dot-progress .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #2a2a3e;
+      transition: all 0.3s;
+    }
+    .dot-progress .dot.active {
+      background: var(--primary-green);
+      width: 18px;
+      border-radius: 3px;
+    }
+
+    /* ════════════════════════════════════
+       STATUS BAR (shared)
+       ════════════════════════════════════ */
+    .status-bar {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .status-bar .time { margin-left: 14px; }
+    .status-icons {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      margin-right: -2px;
+    }
+    .status-icons svg { width: 16px; height: 16px; }
+
+    /* ════════════════════════════════════
+       SCREEN 1: SPLASH
+       ════════════════════════════════════ */
+    .splash-screen {
+      background: var(--brand-yellow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      position: relative;
+    }
+    .splash-logo {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+    .splash-logo .bl { color: var(--text-dark); }
+    .splash-logo .mr { color: var(--primary-green); }
+    .splash-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .splash-tagline {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+    .splash-version {
+      position: absolute;
+      bottom: 77px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--dark-blue);
+    }
+
+    /* ════════════════════════════════════
+       SCREEN 2: HOME
+       ════════════════════════════════════ */
+    .home-screen {
+      background: #fff;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .home-scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 8px;
+    }
+    .home-scroll-area::-webkit-scrollbar { width: 0; }
+    .home-screen::-webkit-scrollbar { width: 0; }
+    .home-header {
+      background: #fff;
+      padding: 0 24px;
+      padding-top: 52px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .home-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 34px;
+    }
+    .location-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #f0f0f0;
+      border-radius: 20px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--neutral-100);
+    }
+    .location-pill .dot { width: 8px; height: 8px; background: var(--primary-green); border-radius: 50%; }
+    .home-icons { display: flex; gap: 16px; }
+    .home-icons svg { width: 22px; height: 22px; color: #333; }
+
+    .ai-banner {
+      margin: 16px 24px;
+      background: linear-gradient(135deg, #faf9fc 0%, #f3eef8 100%);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .ai-banner-text .ai-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #7B61FF;
+      margin-bottom: 4px;
+    }
+    .ai-banner-text .ai-label img { width: 20px; height: 20px; }
+    .ai-banner-text h3 { font-size: 22px; font-weight: 700; color: var(--neutral-100); line-height: 1.3; }
+    .ai-banner-img { width: 100px; height: 97px; border-radius: 50%; overflow: hidden; }
+    .ai-banner-img img { width: 100%; height: 100%; object-fit: cover; }
+    .banner-dots { display: flex; gap: 7px; margin-top: 12px; }
+    .banner-dots .bdot { height: 5px; border-radius: 3px; background: #ccc; }
+    .banner-dots .bdot.active { width: 16px; background: var(--primary-green); }
+    .banner-dots .bdot:not(.active) { width: 5px; }
+
+    .search-bar {
+      margin: 8px 24px 16px;
+      display: flex;
+      align-items: center;
+      background: #f5f5f5;
+      border-radius: 14px;
+      padding: 14px 16px;
+      gap: 10px;
+      border: 1px solid #ededed;
+    }
+    .search-bar svg { width: 20px; height: 20px; color: #999; flex-shrink: 0; }
+    .search-bar span { font-size: 14px; color: #aaa; }
+    .search-bar .filter-icon { margin-left: auto; }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      margin-bottom: 12px;
+    }
+    .section-header h4 { font-size: 14px; font-weight: 600; color: var(--neutral-100); }
+    .section-header .see-all { font-size: 12px; color: var(--primary-green); }
+
+    .categories { display: flex; gap: 14px; padding: 0 24px; overflow-x: auto; margin-bottom: 20px; }
+    .categories::-webkit-scrollbar { display: none; }
+    .category-item { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; width: 77px; }
+    .category-item .cat-img { width: 77px; height: 76px; border-radius: 16px; background: #f5f5f5; overflow: hidden; }
+    .category-item .cat-img img { width: 100%; height: 100%; object-fit: cover; }
+    .category-item span { font-size: 11px; color: #666; text-align: center; }
+
+    .flash-sale-header { display: flex; align-items: center; gap: 8px; padding: 0 24px; margin-bottom: 12px; }
+    .flash-sale-header h4 { font-size: 14px; font-weight: 600; color: var(--neutral-100); }
+    .flash-timer { background: var(--primary-green); color: #fff; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 10px; }
+    .flash-sale-header .see-all { margin-left: auto; font-size: 12px; color: var(--primary-green); }
+
+    .product-row { display: flex; gap: 12px; padding: 0 24px; overflow-x: auto; margin-bottom: 20px; }
+    .product-row::-webkit-scrollbar { display: none; }
+    .product-card { width: 164px; flex-shrink: 0; position: relative; }
+    .product-card .product-img {
+      width: 164px; height: 126px; border-radius: 12px; background: #f9f9f9;
+      overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;
+    }
+    .product-card .product-img img { width: 85%; height: 85%; object-fit: contain; }
+    .product-card .heart-btn {
+      position: absolute; top: 8px; right: 8px; width: 40px; height: 40px;
+      background: #fff; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .product-card .heart-btn svg { width: 20px; height: 20px; color: #bbb; }
+    .product-info { margin-top: 8px; }
+    .product-info .name { font-size: 12px; font-weight: 500; color: var(--neutral-100); }
+    .product-info .stars { display: flex; gap: 4px; margin-top: 4px; }
+    .product-info .stars svg { width: 12px; height: 12px; }
+    .product-info .price-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+    .product-info .price { font-size: 14px; font-weight: 700; color: var(--neutral-100); }
+    .product-info .original-price { font-size: 11px; color: #aaa; text-decoration: line-through; }
+
+    .promo-row { display: flex; gap: 10px; padding: 0 24px; overflow-x: auto; margin-bottom: 20px; }
+    .promo-row::-webkit-scrollbar { display: none; }
+    .promo-card {
+      width: 295px; height: 124px; border-radius: 16px; flex-shrink: 0;
+      padding: 16px; display: flex; justify-content: space-between; align-items: center;
+      overflow: hidden;
+    }
+    .promo-card:first-child { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+    .promo-card:last-child { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
+    .promo-card h5 { font-size: 18px; font-weight: 700; color: var(--neutral-100); line-height: 1.3; }
+    .promo-card p { font-size: 11px; color: #666; margin-top: 4px; }
+    .promo-card .shop-btn {
+      margin-top: 10px; display: inline-block; padding: 6px 16px;
+      background: var(--neutral-100); color: #fff; border-radius: 8px; font-size: 11px; font-weight: 600;
+    }
+    .promo-card .promo-img { width: 90px; height: 90px; border-radius: 12px; overflow: hidden; }
+    .promo-card .promo-img img { width: 100%; height: 100%; object-fit: cover; }
+
+    .store-card-row { display: flex; gap: 16px; padding: 0 24px; overflow-x: auto; margin-bottom: 20px; }
+    .store-card-row::-webkit-scrollbar { display: none; }
+    .store-card { width: 248px; flex-shrink: 0; }
+    .store-card .store-img { width: 248px; height: 140px; border-radius: 12px; overflow: hidden; position: relative; }
+    .store-card .store-img img { width: 100%; height: 100%; object-fit: cover; }
+    .store-card .store-tag {
+      position: absolute; top: 12px; left: 9px; padding: 2px 10px;
+      background: var(--primary-green); color: #fff; border-radius: 4px; font-size: 10px; font-weight: 600;
+    }
+    .store-card .store-tag.pastry { background: #FF6B35; }
+    .store-card .store-name { font-size: 14px; font-weight: 600; color: var(--neutral-100); margin-top: 12px; }
+    .store-card .store-loc { font-size: 12px; color: #888; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+
+    .store-list { padding: 0 24px; margin-bottom: 20px; }
+    .store-list-item { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+    .store-list-item .store-thumb { width: 66px; height: 66px; border-radius: 12px; overflow: hidden; flex-shrink: 0; }
+    .store-list-item .store-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .store-list-item .store-meta { flex: 1; }
+    .store-list-item .promo-label { font-size: 10px; color: var(--primary-green); font-weight: 700; text-transform: uppercase; }
+    .store-list-item .s-name { font-size: 13px; font-weight: 600; color: var(--neutral-100); margin-top: 2px; }
+    .store-list-item .s-details { display: flex; gap: 12px; margin-top: 2px; font-size: 11px; color: #888; }
+    .store-list-item .s-details .rating { display: flex; align-items: center; gap: 3px; }
+    .store-list-item .chevron { color: #ccc; font-size: 18px; }
+
+    .tab-bar {
+      flex-shrink: 0; height: 84px;
+      background: #fff; border-top: 1px solid #f0f0f0;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding-top: 10px; padding-left: 12px; padding-right: 12px; z-index: 20;
+    }
+    .tab-items { display: flex; flex: 1; align-items: flex-start; justify-content: space-around; }
+    .tab-item { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; color: #999; width: 56px; }
+    .tab-item.active { color: var(--primary-green); }
+    .ai-tab-center {
+      display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: -20px; width: 64px;
+    }
+    .ai-tab-btn {
+      width: 56px; height: 56px; background: #7B61FF; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(123,97,255,0.4); cursor: pointer;
+    }
+    .ai-tab-btn img { width: 32px; height: 32px; }
+    .ai-tab-label { font-size: 10px; color: #7B61FF; font-weight: 500; margin-top: 2px; }
+    /* Pulse animation for AI button */
+    @keyframes aiPulse {
+      0%, 100% { box-shadow: 0 4px 20px rgba(123,97,255,0.4); }
+      50% { box-shadow: 0 4px 30px rgba(123,97,255,0.7), 0 0 0 8px rgba(123,97,255,0.1); }
+    }
+    .ai-tab-btn { animation: aiPulse 2s ease-in-out infinite; }
+
+    /* ── Blink AI Popup Overlay ── */
+    .blinkai-overlay {
+      position: absolute; inset: 0; z-index: 50;
+      background: rgba(0,0,0,0.45);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .blinkai-overlay.visible { opacity: 1; pointer-events: auto; }
+    .blinkai-popup {
+      position: absolute;
+      bottom: 119px; /* 5px above AI button area */
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      width: 325px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+    }
+    .blinkai-overlay.visible .blinkai-popup {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .blinkai-popup .popup-header {
+      display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+    }
+    .blinkai-popup .popup-header img { width: 20px; height: 20px; }
+    .blinkai-popup .popup-header span {
+      font-size: 14px; font-weight: 600; color: #7B61FF;
+    }
+    .blinkai-popup .popup-title {
+      font-size: 20px; font-weight: 700; color: #0a0a0a;
+      line-height: 1.3; margin-bottom: 6px;
+    }
+    .blinkai-popup .popup-title .green { color: #318615; }
+    .blinkai-popup .popup-desc {
+      font-size: 13px; color: #666; line-height: 1.5; margin-bottom: 14px;
+    }
+    .blinkai-popup .popup-suggestion {
+      background: #f4ecfe; border: 1.5px solid #e8dff5; border-radius: 12px;
+      padding: 11px 14px; margin-bottom: 8px; font-size: 13px; color: #333;
+      line-height: 1.4; cursor: pointer;
+    }
+    .blinkai-popup .popup-suggestion:hover { background: #f4ecfe; }
+    .blinkai-popup .popup-footer {
+      text-align: center; font-size: 13px; color: #999; margin-top: 20px;
+    }
+    /* Triangle pointer from popup to AI button */
+    .blinkai-popup::after {
+      content: '';
+      position: absolute;
+      bottom: -8px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 8px solid #fff;
+    }
+    /* Keep AI button above overlay */
+    .blinkai-overlay .ai-btn-highlight {
+      position: absolute;
+      bottom: 37px; left: 50%; transform: translateX(-50%);
+      z-index: 51;
+    }
+
+    /* ════════════════════════════════════
+       SCREEN 3: EDUCATION POPUP
+       ════════════════════════════════════ */
+    .education-screen { background: #00000082; height: 100%; position: relative; }
+    .education-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); z-index: 30; }
+    .education-sheet {
+      position: absolute; bottom: 80px; left: 12px; right: 12px;
+      background: #fff; border-radius: 24px; padding: 24px 22px; z-index: 31;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+    }
+    .edu-header { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+    .edu-header img { width: 20px; height: 20px; }
+    .edu-header span { font-size: 14px; font-weight: 600; color: #7B61FF; }
+    .edu-title { font-size: 22px; font-weight: 700; color: var(--neutral-100); margin-bottom: 8px; line-height: 1.3; }
+    .edu-title .green { color: var(--primary-green); }
+    .edu-desc { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 20px; }
+    .edu-suggestion {
+      background: #fff; border: 1.5px solid #e8dff5; border-radius: 14px; padding: 14px 16px;
+      margin-bottom: 10px; font-size: 14px; color: #333; line-height: 1.5; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .edu-suggestion:hover { background: #fff; }
+    .edu-explore { text-align: right; font-size: 14px; color: #888; margin-top: 16px; }
+
+    /* ════════════════════════════════════
+       AI CHAT SCREENS
+       ════════════════════════════════════ */
+    .ai-chat-screen { background: #000; height: 100%; display: flex; flex-direction: column; }
+    .ai-status-bar { width: 375px; height: 44px; flex-shrink: 0; display: block; object-fit: cover; filter: invert(1); }
+    .ai-chat-header {
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 10px; gap: 6px; padding-bottom: 20px; position: relative;
+    }
+    .ai-chat-header .back-btn { position: absolute; left: 20px; top: 12px; cursor: pointer; }
+    .ai-chat-header .back-btn svg { width: 24px; height: 24px; color: #fff; }
+    .ai-logo-row { display: flex; align-items: flex-end; gap: 5px; }
+    .ai-logo-row img { width: 31px; height: 31px; }
+    .ai-logo-row span {
+      font-size: 16px; font-weight: 500;
+      background: linear-gradient(-21.49deg, #ffb9f4 23.39%, #a560ff 73.15%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .ai-chat-body { flex: 1; padding: 20px; overflow-y: auto; }
+    .ai-chat-body::-webkit-scrollbar { display: none; }
+    .ai-msg { font-size: 18px; font-weight: 500; color: #fdfdfd; line-height: 1.44; margin-bottom: 16px; }
+    .ai-msg .label { color: #a560ff; font-weight: 600; }
+    .user-msg { font-size: 18px; font-weight: 500; color: #fdfdfd; line-height: 1.44; margin-bottom: 16px; }
+    .user-msg .label { color: #78828a; }
+    .try-asking { font-size: 14px; color: #78828a; margin-bottom: 12px; }
+    .suggestion-chip {
+      display: inline-block; background: var(--ai-card-dark); border: 1px solid var(--ai-border-dark);
+      border-radius: 16px; padding: 12px 16px; font-size: 14px; color: var(--white);
+      margin-bottom: 8px; cursor: pointer; font-family: var(--font-secondary); transition: background 0.2s;
+    }
+    .suggestion-chip:hover { background: #222238; }
+    .user-bubble { text-align: right; margin-bottom: 16px; }
+    .user-bubble span {
+      display: inline-block; background: #222238; border: 1px solid #333350;
+      border-radius: 16px 16px 4px 16px; padding: 12px 16px; font-size: 14px; color: #fff;
+    }
+
+    /* Product Card in AI */
+    .ai-product-card { background: #fff; border-radius: 16px; overflow: hidden; margin: 16px 0; border: 1px solid var(--neutral-40); }
+    .ai-product-card .card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px; border-bottom: 1px solid var(--neutral-40);
+      font-size: 16px; font-weight: 600; color: var(--neutral-100);
+    }
+    .ai-product-card .card-header .view-all { color: var(--primary-green); font-weight: 600; }
+    .ai-product-items { padding: 16px 12px; }
+    .ai-product-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .ai-product-row:last-child { margin-bottom: 0; }
+    .ai-product-row .prod-thumb {
+      width: 48px; height: 48px; border-radius: 12px; border: 1px solid var(--neutral-40);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .ai-product-row .prod-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .ai-product-row .prod-details { flex: 1; }
+    .ai-product-row .prod-name { font-size: 14px; font-weight: 500; color: var(--neutral-100); }
+    .ai-product-row .prod-price { font-size: 14px; font-weight: 700; color: var(--neutral-100); }
+    .quantity-control {
+      display: flex; align-items: center; gap: 8px; background: var(--neutral-20);
+      border: 1px solid var(--neutral-30); border-radius: 99px; padding: 4px;
+    }
+    .qty-btn {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .qty-btn.minus { background: #fff; border: 1px solid var(--neutral-40); color: #999; }
+    .qty-btn.plus { background: var(--primary-green); color: #fff; }
+    .qty-num { font-size: 14px; font-weight: 700; color: var(--neutral-100); width: 26px; text-align: center; }
+    .card-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px; border-top: 1px solid var(--neutral-40);
+    }
+    .card-footer .total-label { font-size: 14px; font-weight: 500; color: var(--neutral-100); }
+    .card-footer .total-value { font-size: 16px; font-weight: 700; color: var(--primary-main); margin-left: 8px; }
+    .add-to-cart-btn {
+      background: var(--primary-green); color: #fff; border: none; border-radius: 100px;
+      padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--font-primary);
+    }
+    .added-btn {
+      background: #e8f5e9; color: var(--primary-green); border: 1px solid #c8e6c9;
+      border-radius: 100px; padding: 8px 16px; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .chat-input-bar {
+      background: var(--ai-card-dark); border: none;
+      border-radius: 20px 20px 0 0; padding: 16px 19px 24px;
+    }
+    .chat-input-bar .input-text { font-size: 14px; color: var(--text-hint); font-weight: 500; margin-bottom: 16px; }
+    .chat-input-actions { display: flex; justify-content: space-between; align-items: center; }
+    .chat-input-actions .plus-btn { width: 28px; height: 28px; color: #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+
+    /* Voice transition overlay */
+    .voice-transition {
+      position: absolute;
+      inset: 0;
+      z-index: 100;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .voice-transition .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, #7B61FF 0%, #a560ff 40%, #1d1d2f 70%, #000 100%);
+      transform: scale(0);
+      opacity: 0;
+    }
+    .voice-transition .orb-glow {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(165,96,255,0.6) 0%, rgba(255,185,244,0.3) 50%, transparent 70%);
+      filter: blur(20px);
+      opacity: 0;
+    }
+    .voice-transition .pulse-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid rgba(123,97,255,0.4);
+      opacity: 0;
+    }
+
+    /* ════════════════════════════════════
+       VOICE MODE
+       ════════════════════════════════════ */
+    .voice-screen { background: #000; height: 100%; display: flex; flex-direction: column; }
+    .voice-body { flex: 1; position: relative; overflow: hidden; border-radius: 0 0 50px 50px; }
+    .wave-container {
+      position: absolute; bottom: 0; left: -1px; right: -1px; height: 260px;
+      border-radius: 50px 50px 0 0; overflow: hidden;
+    }
+    .wave-bg { display: none; }
+    .wave-animated {
+      position: absolute; inset: 0;
+      border-radius: 50px 50px 0 0;
+      overflow: hidden;
+    }
+    .wave-animated::before,
+    .wave-animated::after {
+      content: '';
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      border-radius: 40%;
+      opacity: 0.6;
+    }
+    .wave-animated::before {
+      background: linear-gradient(135deg, #7B61FF, #ff69b4, #a560ff);
+      top: 10%;
+      left: -50%;
+      animation: waveSpin 8s linear infinite;
+    }
+    .wave-animated::after {
+      background: linear-gradient(135deg, #ffb9f4, #7B61FF, #ff69b4);
+      top: 20%;
+      left: -30%;
+      animation: waveSpin 12s linear infinite reverse;
+      opacity: 0.4;
+    }
+    @keyframes waveSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .wave-gradient-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(173deg, #000 15%, rgba(0,0,0,0.3) 50%, transparent 80%);
+      border-radius: 50px 50px 0 0;
+    }
+    .voice-controls { display: flex; justify-content: center; gap: 24px; padding: 16px 0 40px; z-index: 5; }
+    .mic-btn, .close-btn {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mic-btn { background: #1d1d2f; box-shadow: 3.7px 3.7px 18.7px rgba(0,0,0,0.26); }
+    .mic-btn svg { width: 24px; height: 24px; color: #fff; }
+    .close-btn { background: var(--error-red); box-shadow: 3.7px 3.7px 18.7px rgba(0,0,0,0.26); }
+    .close-btn svg { width: 24px; height: 24px; color: #fff; }
+    .voice-chat-content { position: absolute; top: 0; left: 24px; right: 24px; z-index: 4; }
+    .view-cart-pill {
+      display: flex; align-items: center; gap: 8px; background: var(--primary-green);
+      border-radius: 100px; padding: 8px 16px; width: fit-content; margin-top: 16px; cursor: pointer;
+    }
+    .cart-thumbs { display: flex; margin-right: 4px; }
+    .cart-thumbs img { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--primary-green); margin-left: -8px; }
+    .cart-thumbs img:first-child { margin-left: 0; }
+    .view-cart-pill .cart-text { color: #fff; font-size: 14px; font-weight: 700; }
+    .view-cart-pill .cart-count { color: rgba(255,255,255,0.8); font-size: 11px; }
+    .view-cart-pill .cart-arrow {
+      width: 20px; height: 20px; background: rgba(255,255,255,0.2); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px;
+    }
+
+    /* ════════════════════════════════════
+       RESULT / CHECKOUT / PAYMENT / SUCCESS / ORDER
+       ════════════════════════════════════ */
+    .result-screen { background: #fff; height: 100%; display: flex; flex-direction: column; }
+    .result-header { display: flex; align-items: center; justify-content: center; padding: 50px 24px 16px; position: relative; }
+    .result-header .back { position: absolute; left: 24px; cursor: pointer; }
+    .result-header h3 { font-size: 18px; font-weight: 700; color: var(--neutral-100); }
+    .result-header .search-icon { position: absolute; right: 24px; }
+    .result-header .search-icon svg { width: 24px; height: 24px; color: #333; }
+    .result-tabs { display: flex; gap: 5px; padding: 8px 20px; margin-bottom: 0px; }
+    .result-tab {
+      padding: 8px 16px; border-radius: 100px; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--neutral-40); color: #666; background: #fff;
+    }
+    .result-tab.active { background: var(--primary-green); color: #fff; border-color: var(--primary-green); }
+    .result-list { flex: 1; padding: 0 24px; }
+    .result-item { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid #f5f5f5; }
+    .result-item .r-thumb {
+      width: 56px; height: 56px; border-radius: 14px; overflow: hidden; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .result-item .r-thumb img { width: 85%; height: 85%; object-fit: contain; }
+    .result-item .r-info { flex: 1; }
+    .result-item .r-name { font-size: 16px; font-weight: 500; color: var(--neutral-100); }
+    .result-item .r-price { font-size: 16px; font-weight: 700; color: var(--neutral-100); margin-top: 2px; }
+    .result-footer { padding: 16px 24px 40px; }
+    .result-footer .total-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; font-size: 16px; }
+    .result-footer .total-row .lbl { color: #666; font-weight: 500; }
+    .result-footer .total-row .val { color: var(--primary-main); font-weight: 700; }
+    .full-btn {
+      width: 100%; padding: 16px; background: var(--primary-green); color: #fff;
+      border: none; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer;
+      font-family: var(--font-primary);
+    }
+
+    .checkout-screen { background: #fff; height: 100%; display: flex; flex-direction: column; }
+    .checkout-header { display: flex; align-items: center; justify-content: center; padding: 50px 24px 16px; position: relative; }
+    .checkout-header .back { position: absolute; left: 24px; cursor: pointer; }
+    .checkout-header h3 { font-size: 18px; font-weight: 700; color: var(--neutral-100); }
+    .checkout-header .more { position: absolute; right: 24px; color: #333; font-size: 20px; cursor: pointer; }
+    .checkout-body { flex: 1; overflow-y: auto; padding: 0 24px; }
+    .checkout-body::-webkit-scrollbar { display: none; }
+    .wallet-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px; border: 1px solid var(--neutral-40); border-radius: 12px; margin-bottom: 16px; }
+    .wallet-bar .wallet-left { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; color: var(--neutral-100); }
+    .wallet-bar .wallet-amt { font-size: 16px; font-weight: 700; color: var(--neutral-100); }
+    .delivery-bar { padding: 16px; border: 1px solid var(--neutral-40); border-radius: 12px; margin-bottom: 20px; }
+    .delivery-bar .deliver-top { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-bottom: 8px; }
+    .delivery-bar .edit-btn { border: 1px solid var(--neutral-40); border-radius: 6px; padding: 2px 10px; font-size: 11px; color: #666; cursor: pointer; }
+    .delivery-bar .address { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--neutral-100); }
+    .delivery-bar .address .red-dot { width: 8px; height: 8px; background: #e53935; border-radius: 50%; flex-shrink: 0; }
+    .checkout-prod-item { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+    .checkout-prod-item .cp-thumb { width: 64px; height: 64px; border-radius: 14px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .checkout-prod-item .cp-thumb img { width: 85%; height: 85%; object-fit: contain; }
+    .checkout-prod-item .cp-info { flex: 1; }
+    .checkout-prod-item .cp-name { font-size: 16px; font-weight: 600; color: var(--neutral-100); }
+    .checkout-prod-item .cp-cat { font-size: 12px; color: #888; margin-top: 2px; }
+    .checkout-prod-item .cp-cat .in-stock { color: var(--primary-green); }
+    .checkout-prod-item .cp-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+    .checkout-prod-item .cp-qty { font-size: 13px; color: #666; }
+    .checkout-prod-item .cp-price { font-size: 14px; font-weight: 700; color: var(--neutral-100); }
+    .checkout-footer { padding: 16px 24px 32px; border-top: 1px solid #f0f0f0; }
+    .checkout-footer .total-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+    .checkout-footer .total-row .lbl { color: #888; }
+    .checkout-footer .total-row .val { font-weight: 700; color: var(--neutral-100); }
+
+    .payment-screen { background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; }
+    .payment-option {
+      margin: 0 24px; padding: 16px; border: 1px solid var(--neutral-40); border-radius: 12px;
+      margin-bottom: 12px; display: flex; align-items: center; gap: 14px; cursor: pointer;
+    }
+    .payment-option.selected { border-color: var(--primary-green); background: #f0faf0; }
+    .payment-option .pay-icon {
+      width: 40px; height: 40px; border-radius: 10px; background: #f5f5f5;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .payment-option .pay-info { flex: 1; }
+    .payment-option .pay-name { font-size: 14px; font-weight: 500; color: var(--neutral-100); }
+    .payment-option .pay-desc { font-size: 12px; color: #888; margin-top: 2px; }
+    .payment-option .chevron { color: #ccc; }
+
+    .success-screen {
+      background: #fff; height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 0 40px; position: relative;
+    }
+    .success-check { width: 160px; height: 160px; position: relative; margin-bottom: 32px; }
+    .success-check .outer-ring {
+      width: 160px; height: 160px; border-radius: 50%; background: #e8f5e9;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .success-check .inner-circle {
+      width: 120px; height: 120px; border-radius: 50%; background: var(--primary-green);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .success-check .inner-circle svg { width: 56px; height: 56px; color: #fff; }
+    .confetti-piece { position: absolute; border-radius: 2px; }
+    .success-title { font-size: 24px; font-weight: 700; color: var(--neutral-100); text-align: center; margin-bottom: 12px; }
+    .success-desc { font-size: 14px; color: #888; text-align: center; line-height: 1.6; }
+
+    .order-screen { background: #fff; height: 100%; display: flex; flex-direction: column; }
+    .order-tracker { display: flex; align-items: flex-start; justify-content: center; gap: 4px; padding: 16px 24px 20px; }
+    .tracker-step { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 80px; }
+    .tracker-step .step-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .tracker-step .step-dot.active { background: var(--primary-green); color: #fff; }
+    .tracker-step .step-dot.inactive { background: #f0f0f0; color: #ccc; }
+    .tracker-step .step-label { font-size: 10px; color: #888; text-align: center; }
+    .tracker-line { width: 30px; height: 2px; margin-top: 16px; border-top: 2px dashed var(--primary-green); }
+    .tracker-line.inactive { border-color: #ddd; }
+
+    /* Typing animation */
+    .typing-indicator { display: inline-flex; gap: 4px; padding: 8px 16px; background: rgba(255,255,255,0.05); border-radius: 12px; }
+    .typing-indicator span { width: 8px; height: 8px; background: #a560ff; border-radius: 50%; animation: typingBounce 1.4s infinite; }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* ════════════════════════════════════
+       SCROLL RATIONALE SECTIONS
+       ════════════════════════════════════ */
+    .screen-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 80px 60px;
+      gap: 80px;
+      position: relative;
+    }
+    .screen-section:nth-child(even) { background: #0e0e16; }
+    .screen-section:nth-child(odd) { background: #0a0a0f; }
+    .section-phone {
+      flex-shrink: 0;
+      width: 375px;
+      height: 812px;
+      border-radius: 40px 40px 50px 50px;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+      background: #000;
+    }
+    .section-phone > * { width: 100%; height: 100%; }
+    .rationale { max-width: 440px; flex-shrink: 0; }
+    .rationale .screen-number {
+      font-size: 13px; color: var(--primary-green); letter-spacing: 3px;
+      text-transform: uppercase; font-weight: 600; margin-bottom: 12px;
+    }
+    .rationale h2 { font-size: 32px; font-weight: 700; color: #fff; margin-bottom: 16px; line-height: 1.3; }
+    .rationale .desc { font-size: 16px; line-height: 1.8; color: #999; margin-bottom: 28px; }
+    .r-tag {
+      display: inline-block; padding: 6px 14px; border-radius: 8px;
+      font-size: 12px; font-weight: 600; margin: 0 6px 8px 0;
+      background: rgba(49,134,21,0.12); color: var(--primary-green); border: 1px solid rgba(49,134,21,0.2);
+    }
+    .r-tag.purple { background: rgba(123,97,255,0.12); color: #7B61FF; border-color: rgba(123,97,255,0.2); }
+    .r-tag.orange { background: rgba(255,107,53,0.12); color: #FF6B35; border-color: rgba(255,107,53,0.2); }
+    .r-tag.gold { background: rgba(255,215,0,0.12); color: #FFD700; border-color: rgba(255,215,0,0.2); }
+    .detail-list { margin-top: 20px; }
+    .detail-list li {
+      list-style: none; padding: 10px 0; border-bottom: 1px solid #1a1a2e;
+      font-size: 14px; color: #888; display: flex; gap: 10px; align-items: flex-start;
+    }
+    .detail-list li::before { content: '→'; color: var(--primary-green); font-weight: 700; flex-shrink: 0; }
+    .divider { width: 100%; height: 1px; background: #1a1a2e; margin: 0; }
+    .proto-nav { display: none; }
+    /* Scroll anim helpers */
+    .fade-in { opacity: 0; transform: translateY(30px); }
+    .slide-left { opacity: 0; transform: translateX(-40px); }
+    .slide-right { opacity: 0; transform: translateX(40px); }
+
+    @media (max-width: 1100px) {
+      .screen-section { flex-direction: column; padding: 60px 24px; gap: 40px; }
+      .rationale { max-width: 375px; }
+    }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .hero { flex-direction: column; padding: 40px 24px; gap: 40px; }
+      .hero-info { max-width: 100%; text-align: center; }
+      .hero-meta { justify-content: center; }
+      .rationale-inner { flex-direction: column; gap: 24px; }
+      .rationale-section { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     HERO — Left Info + Right Prototype
+     ═══════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <!-- LEFT: Project Info -->
+  <div class="hero-info">
+    <div class="hero-tag">Saurav Keshari - Innovaccer Assignment</div>
+    <h1 class="hero-title"><span class="blink">Blink</span><span class="mart">Mart</span></h1>
+    <p class="hero-desc">
+      Quick-commerce apps made delivery fast — but building the cart is still painfully manual.
+      BlinkMart AI changes that with a conversational assistant that understands intent, generates
+      a full cart instantly, and lets users refine via natural language. From search-first to intent-first shopping.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="label">TYPE</span>
+        <span class="value">Mobile App UX</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">DOMAIN</span>
+        <span class="value">Quick-Commerce</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">TOOLS</span>
+        <span class="value">Figma, Chatgpt, Pencil, Claude</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">YEAR</span>
+        <span class="value">2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Interactive Prototype -->
+  <div class="proto-viewer">
+    <div class="phone-frame" id="protoPhone">
+      <div class="screens-container" id="screensContainer">
+        <!-- All screens rendered here, toggled by JS -->
+      </div>
+    </div>
+    <div class="proto-nav">
+      <div class="nav-btn" id="prevBtn" onclick="navigateScreen(-1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </div>
+      <div class="screen-indicator">
+        <div class="screen-num" id="screenNum">01 / 13</div>
+        <div class="screen-name" id="screenName">Splash Screen</div>
+        <div class="dot-progress" id="dotProgress"></div>
+      </div>
+      <div class="nav-btn" id="nextBtn" onclick="navigateScreen(1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Divider -->
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════
+     SCROLL-THROUGH RATIONALE SECTIONS
+     ═══════════════════════════════════════ -->
+<div id="rationaleContainer"></div>
+
+<!-- SECTION 1: Splash -->
+<section class="screen-section" id="sec-1">
+  <div class="slide-left section-phone" id="sec1-phone"></div>
+  <div class="rationale slide-right">
+    <div class="screen-number">SCREEN 01</div>
+    <h2>Splash Screen</h2>
+    <p class="desc">The yellow brand screen establishes BlinkMart's energetic identity. Bold typography — "Blink" in black, "Mart" in green — creates instant brand recognition while communicating freshness and commerce.</p>
+    <div><span class="r-tag gold">Brand Identity</span><span class="r-tag">Trust Building</span></div>
+    <ul class="detail-list">
+      <li>Brand yellow (#F8CB46) conveys warmth and optimism</li>
+      <li>Plus Jakarta Sans ExtraBold for maximum impact</li>
+      <li>Version number builds transparency and trust</li>
+      <li>Auto-transitions to Home via zoom — minimal friction</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 2: Home -->
+<section class="screen-section" id="sec-2">
+  <div class="slide-left section-phone" id="sec2-phone"></div>
+  <div class="rationale slide-right">
+    <div class="screen-number">SCREEN 02</div>
+    <h2>Home — The Familiar Base</h2>
+    <p class="desc">Conventional grocery app patterns — categories, flash sales, promos — so users feel instantly comfortable. After 1 second on the home screen, a popup card rises above the AI button with a transparent overlay — introducing the assistant without leaving the shopping context.</p>
+    <div><span class="r-tag">Assist, Not Replace</span><span class="r-tag purple">AI Discovery</span></div>
+   <!-- <div style="margin:20px 0;border-radius:12px;overflow:hidden;border:1px solid #1a1a2e">
+      <img src="BlinkAI Popup.svg" alt="Blink AI Popup" style="width:100%;display:block">
+    </div> -->
+    <ul class="detail-list">
+      <li>Manual shopping remains fully functional — AI is optional</li>
+      <li>Blink AI popup auto-appears after 1s — gentle AI introduction</li>
+      <li>Centered AI button with pulse animation draws attention</li>
+      <li>Transparent overlay keeps home visible — low disruption</li>
+      <li>Three suggestion chips bridge the "what can I ask?" gap</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 3: Education -->
+<section class="screen-section" id="sec-3">
+  <div class="slide-left section-phone" id="sec3-phone"></div>
+  <div class="rationale slide-right">
+    <div class="screen-number">SCREEN 03</div>
+    <h2>Education — Onboarding the AI</h2>
+    <p class="desc">When users first tap the AI button, a bottom sheet introduces Blink AI with three concrete examples. This bridges the "what can I even ask?" gap — the biggest barrier to AI adoption in commerce apps.</p>
+    <div><span class="r-tag purple">Show Your Work</span><span class="r-tag orange">Reduce Anxiety</span></div>
+    <ul class="detail-list">
+      <li>Bottom sheet preserves context — home screen visible behind</li>
+      <li>Three real examples show AI capabilities concretely</li>
+      <li>Budget-aware query example sets expectations right</li>
+      <li>"Tap to Explore" CTA is low-commitment</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 4: Chat Greeting -->
+<section class="screen-section" id="sec-4">
+  <div class="slide-left section-phone" id="sec4-phone"></div>
+  <div class="rationale slide-right">
+    <div class="screen-number">SCREEN 04</div>
+    <h2>Chat Mode — AI Greeting</h2>
+    <p class="desc">The dark interface signals "AI mode" — a clear visual break from the commerce UI. Five suggestion chips eliminate the blank canvas problem, giving users ready-made starting points from real user research.</p>
+    <div><span class="r-tag purple">Dual Input Mode</span><span class="r-tag">Always Editable</span></div>
+    <ul class="detail-list">
+      <li>Dark theme = AI mode, Light theme = commerce mode</li>
+      <li>5 chips based on actual user research personas</li>
+      <li>Text input + voice input available simultaneously</li>
+      <li>Back arrow ensures escape hatch to manual shopping</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 4.1-4.2: Chat Flow -->
+<section class="screen-section" id="sec-4-2">
+  <div class="slide-left section-phone" id="sec5-phone"></div>
+  <div class="rationale slide-right">
+    <div class="screen-number">SCREEN 05</div>
+    <h2>Chat Flow — Intent to Cart</h2>
+    <p class="desc">The user types "Fruits under ₹200" and the AI responds with a structured product card. "Best Match" label shows confidence, the total stays under budget (₹195 &lt; ₹200), and every item is individually adjustable.</p>
+    <div><span class="r-tag">Confidence Transparency</span><span class="r-tag purple">Review Before Add</span></div>
+    <ul class="detail-list">
+      <li>User intent → structured result in one exchange</li>
+      <li>"Best Match" confidence label builds trust</li>
+      <li>Budget respected: ₹195 total under ₹200 limit</li>
+      <li>Individual quantity controls on every item</li>
+      <li>"Add to cart" requires explicit user action</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 5: Voice Mode -->
+<section class="screen-section" id="sec-5">
+  <div class="slide-left section-phone" id="sec6-phone"></div>
+  <div class="rationale slide-right">
+    <div class="screen-number">SCREEN 05</div>
+    <h2>Immersive Voice Mode</h2>
+    <p class="desc">Full-screen dark interface with an ambient wave visualization. Designed for hands-free, on-the-go shopping. The gradient wave provides visual feedback that the system is listening.</p>
+    <div><span class="r-tag purple">Voice-First UX</span><span class="r-tag orange">Immersive Experience</span></div>
+    <ul class="detail-list">
+      <li>Full-screen removes distractions for focused interaction</li>
+      <li>Wave animation = visual feedback that AI is listening</li>
+      <li>Dark gradient signals premium AI experience</li>
+      <li>Two clear actions: mic (continue) and close (exit)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 5.4: Voice Conversation -->
+<section class="screen-section" id="sec-5-4">
+  <div class="slide-left section-phone" id="sec7-phone"></div>
+  <div class="rationale slide-right">
+    <div class="screen-number">SCREEN 05.1</div>
+    <h2>Voice — Speak, See, Confirm</h2>
+    <p class="desc">Same conversation in voice mode — text appears as transcript alongside the product card. Results use the same card format, ensuring consistency across both input modes.</p>
+    <div><span class="r-tag">Show Your Work</span><span class="r-tag purple">Mode Consistency</span></div>
+    <ul class="detail-list">
+      <li>Voice input transcribed in real-time for verification</li>
+      <li>Same product card component used in both modes</li>
+      <li>Wave animation continues during processing</li>
+      <li>User can switch to manual editing at any point</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION: Best Match Card States -->
+<section class="screen-section" style="flex-direction:column;gap:40px;padding:80px 60px">
+  <div style="text-align:center;max-width:900px;margin:0 auto">
+    <div class="screen-number" style="font-size:13px;color:var(--primary-green);letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-bottom:12px">COMPONENT STATES</div>
+    <h2 style="font-size:32px;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3">Best Match Card — 3 States</h2>
+    <p style="font-size:16px;line-height:1.8;color:#999;max-width:600px;margin:0 auto 40px">The card transitions through three clear states — giving users full control and confidence at every step of the cart-building process.</p>
+  </div>
+  <div style="display:flex;gap:32px;justify-content:center;align-items:flex-start;flex-wrap:wrap">
+    <!-- State 1: Add to cart -->
+    <div style="width:280px">
+      <div class="ai-product-card" style="margin:0;border-radius:16px">
+        <div class="card-header"><span>Best Match</span><span class="view-all">View all</span></div>
+        <div class="ai-product-items">
+          <div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image.png" alt=""></div><div class="prod-details"><div class="prod-name">Super Banana</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹40</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>
+          <div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-1.png" alt=""></div><div class="prod-details"><div class="prod-name">Big Avocado</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹90</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>
+          <div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-2.png" alt=""></div><div class="prod-details"><div class="prod-name">Cherry</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹85</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>
+        </div>
+        <div class="card-footer"><div><span class="total-label">Total value</span><span class="total-value">₹195</span></div><button class="add-to-cart-btn">Add to cart</button></div>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">1. Add to Cart</div>
+        <div style="font-size:12px;color:#888;line-height:1.5">Default state — user reviews items, quantities, and total before committing</div>
+      </div>
+    </div>
+    <!-- State 2: Added -->
+    <div style="width:280px">
+      <div class="ai-product-card" style="margin:0;border-radius:16px">
+        <div class="card-header"><span>Best Match</span><span class="view-all">View all</span></div>
+        <div class="ai-product-items">
+          <div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image.png" alt=""></div><div class="prod-details"><div class="prod-name">Super Banana</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹40</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>
+          <div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-1.png" alt=""></div><div class="prod-details"><div class="prod-name">Big Avocado</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹90</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>
+          <div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-2.png" alt=""></div><div class="prod-details"><div class="prod-name">Cherry</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹85</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>
+        </div>
+        <div class="card-footer"><div><span class="total-label">Total value</span><span class="total-value">₹195</span></div><div class="added-btn"><svg viewBox="0 0 16 16" fill="currentColor" style="width:14px;height:14px"><path d="M13.485 3.515a1 1 0 010 1.414l-7.07 7.07a1 1 0 01-1.415 0l-3.535-3.535a1 1 0 111.414-1.414L5.7 9.879l6.364-6.364a1 1 0 011.414 0z"/></svg>Added</div></div>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">2. Added</div>
+        <div style="font-size:12px;color:#888;line-height:1.5">Confirmation state — green checkmark provides instant visual feedback</div>
+      </div>
+    </div>
+    <!-- State 3: Go to cart -->
+    <div style="width:280px">
+      <div class="ai-product-card" style="margin:0;border-radius:16px">
+        <div class="card-header"><span>Best Match</span><span class="view-all">View all</span></div>
+        <div class="ai-product-items">
+          <div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image.png" alt=""></div><div class="prod-details"><div class="prod-name">Super Banana</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹40</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>
+          <div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-1.png" alt=""></div><div class="prod-details"><div class="prod-name">Big Avocado</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹90</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>
+          <div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-2.png" alt=""></div><div class="prod-details"><div class="prod-name">Cherry</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹85</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>
+        </div>
+        <div class="card-footer"><div><span class="total-label">Total value</span><span class="total-value">₹195</span></div><button class="add-to-cart-btn" style="padding:8px 16px">Go to cart</button></div>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">3. Go to Cart</div>
+        <div style="font-size:12px;color:#888;line-height:1.5">Action state — bridges AI flow to the standard checkout experience</div>
+      </div>
+    </div>
+  </div>
+  <!-- Detail list -->
+  <div style="max-width:900px;margin:0 auto;display:flex;gap:60px;width:100%">
+    <div style="flex:1">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">
+        <span class="r-tag">Review Before Add</span>
+        <span class="r-tag purple">Progressive Disclosure</span>
+        <span class="r-tag gold">Clear Feedback</span>
+      </div>
+    </div>
+    <div style="flex:1">
+      <ul class="detail-list" style="margin-top:0">
+        <li>3-step state progression reduces cognitive load</li>
+        <li>"Added" confirmation prevents double-tap anxiety</li>
+        <li>"Go to cart" only appears after successful add</li>
+        <li>Total value visible in all states for transparency</li>
+        <li>Quantity controls remain accessible throughout</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 6: Result -->
+<section class="screen-section" id="sec-6">
+  <div class="slide-left section-phone" id="sec9-phone"></div>
+  <div class="rationale slide-right">
+    <div class="screen-number">SCREEN 06</div>
+    <h2>Result — The Confidence System</h2>
+    <p class="desc">Three tabs — Best Match, Suggested, Alternative — are the trust architecture's heart. Users see why each item was picked and explore alternatives. No black box.</p>
+    <div><span class="r-tag">Confidence Transparency</span><span class="r-tag purple">3-Tier System</span></div>
+    <ul class="detail-list">
+      <li>Best Match: Highest relevance + budget fit</li>
+      <li>Suggested: Good alternatives for variety</li>
+      <li>Alternative: Swap options and budget adjustments</li>
+      <li>Search icon allows manual search fallback</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 7: Checkout -->
+<section class="screen-section" id="sec-7">
+  <div class="slide-left section-phone" id="sec10-phone"></div>
+  <div class="rationale slide-right">
+    <div class="screen-number">SCREEN 07</div>
+    <h2>Checkout — Familiar Territory</h2>
+    <p class="desc">Intentionally conventional. After AI cart creation, users land on a standard checkout they trust. Wallet, delivery, products, payment — no surprises.</p>
+    <div><span class="r-tag">Assist, Not Replace</span><span class="r-tag gold">Trust Continuity</span></div>
+    <ul class="detail-list">
+      <li>Standard checkout pattern — zero learning curve</li>
+      <li>Wallet balance shown upfront for transparency</li>
+      <li>Delivery address editable — user stays in control</li>
+      <li>Total matches AI's calculated value — builds trust</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 8: Payment -->
+<section class="screen-section" id="sec-8">
+  <div class="slide-left section-phone" id="sec11-phone"></div>
+  <div class="rationale slide-right">
+    <div class="screen-number">SCREEN 08</div>
+    <h2>Payment Selection</h2>
+    <p class="desc">Standard payment selection with multiple options. "Frequently Used" puts wallet front and center — reducing taps. Green highlight on selected method provides clear feedback.</p>
+    <div><span class="r-tag">Reduce Friction</span><span class="r-tag gold">Standard Patterns</span></div>
+    <ul class="detail-list">
+      <li>Most-used payment method auto-highlighted</li>
+      <li>Green border signals active selection clearly</li>
+      <li>Multiple methods: wallet, PayLater, cards, bank</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SECTION 9: Success -->
+<section class="screen-section" id="sec-9">
+  <div class="slide-left section-phone" id="sec12-phone"></div>
+  <div class="rationale slide-right">
+    <div class="screen-number">SCREEN 09</div>
+    <h2>Payment Success</h2>
+    <p class="desc">Green checkmark with confetti celebrates completion. The entire flow — "Fruits under ₹200" to payment — took under 2 minutes. 60% faster than manual cart building.</p>
+    <div><span class="r-tag">Emotional Design</span><span class="r-tag gold">Goal Achievement</span></div>
+    <ul class="detail-list">
+      <li>Green checkmark = universal success indicator</li>
+      <li>Confetti particles add celebratory micro-delight</li>
+      <li>Clear next action: "Back to Home"</li>
+      <li>Under 2 min total — 60% faster than manual</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     ALL SCREEN TEMPLATES (hidden, cloned by JS)
+     ═══════════════════════════════════════ -->
+<div id="screenTemplates" style="display:none">
+
+  <!-- SCREEN 1: Splash -->
+  <div data-screen="0" class="splash-screen" style="height:100%">
+    <div class="status-bar" style="color:#111;position:absolute;top:0;left:0;right:0">
+      <span class="time">19:27</span>
+      <div class="status-icons"><svg viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="3" width="3" height="9" rx=".5"/><rect x="4.5" y="2" width="3" height="10" rx=".5"/><rect x="9" y="0" width="3" height="12" rx=".5"/><rect x="13.5" y="0" width="3" height="12" rx=".5"/></svg><svg viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.4C5.6 2.4 3.4 3.2 1.6 4.8L0 3.2C2.2 1.2 5 0 8 0s5.8 1.2 8 3.2L14.4 4.8C12.6 3.2 10.4 2.4 8 2.4zM8 7.2c-1.6 0-3 .6-4 1.6L2.4 7.2C3.8 5.8 5.8 5 8 5s4.2.8 5.6 2.2L12 8.8c-1-.8-2.4-1.6-4-1.6zM8 10l-2.4-2.4C6.2 7 7 6.8 8 6.8s1.8.2 2.4.8L8 10z"/></svg><svg viewBox="0 0 25 12" fill="currentColor"><rect x="0" y="1" width="22" height="10" rx="2" stroke="currentColor" fill="none" stroke-width="1"/><rect x="23" y="4" width="2" height="4" rx=".5"/><rect x="2" y="3" width="18" height="6" rx="1"/></svg></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <div class="splash-logo-wrap" id="splashLogoWrap">
+        <p class="splash-logo"><span class="bl">Blink</span><span class="mr">Mart</span></p>
+        <p class="splash-tagline">Everyday Needs, Streamlined for You</p>
+      </div>
+    </div>
+    <p class="splash-version">Version 1.0.2</p>
+  </div>
+
+  <!-- SCREEN 2: Home -->
+  <div data-screen="1" class="home-screen" style="height:100%">
+    <!-- Status bar -->
+    <img src="New assets/status_bar.png" alt="" style="width:375px;height:44px;flex-shrink:0;display:block;object-fit:cover">
+    <!-- Scrollable content area -->
+    <div class="home-scroll-area">
+      <div class="home-header" style="padding-top:8px"><div class="home-top-bar"><div class="location-pill"><span class="dot"></span><span>Sector 38, Gurugram</span><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M3 4.5l3 3 3-3"/></svg></div><div class="home-icons"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><div style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><div style="position:absolute;top:0;right:0;width:8px;height:8px;background:#e53935;border-radius:50%;border:1.5px solid #fff"></div></div></div></div></div>
+      <div class="ai-banner"><div class="ai-banner-text"><div class="ai-label"><img src="New assets/Blink AI logo.svg" alt="" style="width:20px;height:20px"><span>Blink AI</span></div><h3>Try Blink AI<br>to shop faster</h3><div class="banner-dots"><div class="bdot active"></div><div class="bdot"></div></div></div><div class="ai-banner-img"><img src="New assets/Orb.png" alt=""></div></div>
+      <div class="search-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Search Milk</span><div class="filter-icon"><img src="Assets/Home/Filter.svg" alt="" style="width:20px;height:20px"></div></div>
+      <div class="section-header"><h4>Shop by Category</h4><span class="see-all">See All</span></div>
+      <div class="categories"><div class="category-item"><div class="cat-img"><img src="Assets/Home/Image Placeholder.png" alt=""></div><span>Fruits</span></div><div class="category-item"><div class="cat-img"><img src="Assets/Home/Image Placeholder-1.png" alt=""></div><span>Veggies</span></div><div class="category-item"><div class="cat-img"><img src="Assets/Home/Image Placeholder-2.png" alt=""></div><span>Meats</span></div><div class="category-item"><div class="cat-img"><img src="Assets/Home/Image Placeholder-3.png" alt=""></div><span>Seafood</span></div></div>
+      <div class="flash-sale-header"><h4>Flash Sale</h4><span class="flash-timer">03:32:29</span><span class="see-all">See All</span></div>
+      <div class="product-row"><div class="product-card"><div class="product-img"><img src="Assets/Home/fresh-orange-fruit-isolated-white-background 1.png" alt=""><div class="heart-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div></div><div class="product-info"><div class="name">Orange</div><div class="stars"><svg viewBox="0 0 12 12" fill="#FFD700"><polygon points="6,0 7.9,3.8 12,4.4 9,7.3 9.7,11.4 6,9.5 2.3,11.4 3,7.3 0,4.4 4.1,3.8"/></svg><svg viewBox="0 0 12 12" fill="#FFD700"><polygon points="6,0 7.9,3.8 12,4.4 9,7.3 9.7,11.4 6,9.5 2.3,11.4 3,7.3 0,4.4 4.1,3.8"/></svg><svg viewBox="0 0 12 12" fill="#FFD700"><polygon points="6,0 7.9,3.8 12,4.4 9,7.3 9.7,11.4 6,9.5 2.3,11.4 3,7.3 0,4.4 4.1,3.8"/></svg><svg viewBox="0 0 12 12" fill="#FFD700"><polygon points="6,0 7.9,3.8 12,4.4 9,7.3 9.7,11.4 6,9.5 2.3,11.4 3,7.3 0,4.4 4.1,3.8"/></svg><svg viewBox="0 0 12 12" fill="none" stroke="#FFD700" stroke-width="1"><polygon points="6,.5 7.6,3.8 11.2,4.3 8.6,6.9 9.2,10.5 6,8.8 2.8,10.5 3.4,6.9 .8,4.3 4.4,3.8"/></svg></div><div class="price-row"><span class="price">₹120</span><span class="original-price">/kg</span></div></div></div><div class="product-card"><div class="product-img"><img src="Assets/Home/strawberry 1.png" alt=""><div class="heart-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div></div><div class="product-info"><div class="name">Strawberry</div><div class="stars"><svg viewBox="0 0 12 12" fill="#FFD700"><polygon points="6,0 7.9,3.8 12,4.4 9,7.3 9.7,11.4 6,9.5 2.3,11.4 3,7.3 0,4.4 4.1,3.8"/></svg><svg viewBox="0 0 12 12" fill="#FFD700"><polygon points="6,0 7.9,3.8 12,4.4 9,7.3 9.7,11.4 6,9.5 2.3,11.4 3,7.3 0,4.4 4.1,3.8"/></svg><svg viewBox="0 0 12 12" fill="#FFD700"><polygon points="6,0 7.9,3.8 12,4.4 9,7.3 9.7,11.4 6,9.5 2.3,11.4 3,7.3 0,4.4 4.1,3.8"/></svg><svg viewBox="0 0 12 12" fill="#FFD700"><polygon points="6,0 7.9,3.8 12,4.4 9,7.3 9.7,11.4 6,9.5 2.3,11.4 3,7.3 0,4.4 4.1,3.8"/></svg><svg viewBox="0 0 12 12" fill="none" stroke="#FFD700" stroke-width="1"><polygon points="6,.5 7.6,3.8 11.2,4.3 8.6,6.9 9.2,10.5 6,8.8 2.8,10.5 3.4,6.9 .8,4.3 4.4,3.8"/></svg></div><div class="price-row"><span class="price">₹150</span><span class="original-price">/kg</span></div></div></div></div>
+      <div class="section-header"><h4>Ongoing Promotions</h4><span class="see-all">See All</span></div>
+      <div class="promo-row"><div class="promo-card"><div><h5>Fresh Grocery 🥬</h5><p>On your first grocery order</p><span class="shop-btn">Shop Now</span></div><div class="promo-img"><img src="Assets/Home/Promos.svg" alt=""></div></div><div class="promo-card"><div><h5>₹200 OFF ₹500+</h5><p>On your first grocery order</p><span class="shop-btn">Get Now</span></div><div class="promo-img"><img src="Assets/Home/Promos-1.svg" alt=""></div></div></div>
+      <div class="section-header"><h4>Popular Store 🔥</h4><span class="see-all">See All</span></div>
+      <div class="store-card-row"><div class="store-card"><div class="store-img"><img src="Assets/Home/img.svg" alt=""><span class="store-tag">Fruit Seller</span></div><div class="store-name">Sharma Fruits & Veggies</div><div class="store-loc"><svg viewBox="0 0 16 16" fill="none" stroke="#888" stroke-width="1.5" style="width:14px;height:14px"><path d="M8 14s-5-4.5-5-8a5 5 0 1110 0c0 3.5-5 8-5 8z"/><circle cx="8" cy="6" r="1.5"/></svg>Sector 49, Gurugram</div></div><div class="store-card"><div class="store-img"><img src="Assets/Home/img-1.svg" alt=""><span class="store-tag pastry">Pastry</span></div><div class="store-name">Gupta Bakery & Sweets</div><div class="store-loc"><svg viewBox="0 0 16 16" fill="none" stroke="#888" stroke-width="1.5" style="width:14px;height:14px"><path d="M8 14s-5-4.5-5-8a5 5 0 1110 0c0 3.5-5 8-5 8z"/><circle cx="8" cy="6" r="1.5"/></svg>Sector 25, Gurugram</div></div></div>
+      <div class="section-header"><h4>Store Recommendations</h4><span class="see-all">See All</span></div>
+      <div class="store-list"><div class="store-list-item"><div class="store-thumb"><img src="Assets/Home/Rectangle 13.png" alt=""></div><div class="store-meta"><div class="promo-label">PROMO</div><div class="s-name">FreshKart Store</div><div class="s-details"><span>15 mins</span><span>0.6 km</span><span class="rating"><svg viewBox="0 0 12 12" fill="#FFD700" style="width:12px;height:12px"><polygon points="6,0 7.9,3.8 12,4.4 9,7.3 9.7,11.4 6,9.5 2.3,11.4 3,7.3 0,4.4 4.1,3.8"/></svg>4.4</span></div></div><span class="chevron">›</span></div><div class="store-list-item"><div class="store-thumb"><img src="Assets/Home/Rectangle 13-1.png" alt=""></div><div class="store-meta"><div class="promo-label">PROMO</div><div class="s-name">Daily Needs Mart</div><div class="s-details"><span>19 mins</span><span>0.6 km</span><span class="rating"><svg viewBox="0 0 12 12" fill="#FFD700" style="width:12px;height:12px"><polygon points="6,0 7.9,3.8 12,4.4 9,7.3 9.7,11.4 6,9.5 2.3,11.4 3,7.3 0,4.4 4.1,3.8"/></svg>4.4</span></div></div><span class="chevron">›</span></div></div>
+      <div style="height:16px"></div>
+    </div>
+    <!-- Fixed bottom tab bar -->
+    <div class="tab-bar">
+      <div class="tab-items">
+        <div class="tab-item active"><img src="Assets/Home/Home.svg" alt="" style="width:22px;height:22px"><span>Home</span></div>
+        <div class="tab-item"><img src="Assets/Home/Bag.svg" alt="" style="width:22px;height:22px"><span>Print</span></div>
+        <div class="ai-tab-center"><div class="ai-tab-btn"><img src="Assets/Home/ai.svg" alt=""></div><span class="ai-tab-label">Blink AI</span></div>
+        <div class="tab-item"><img src="Assets/Home/Heart - Iconly Pro.svg" alt="" style="width:22px;height:22px"><span>Saved</span></div>
+        <div class="tab-item"><img src="Assets/Home/Profile.svg" alt="" style="width:22px;height:22px"><span>Profile</span></div>
+      </div>
+    </div>
+    <!-- Blink AI Popup Overlay (appears after 3s) -->
+    <div class="blinkai-overlay" id="blinkaiOverlay">
+      <div class="blinkai-popup">
+        <div class="popup-header">
+          <img src="New assets/Blink AI logo.svg" alt="">
+          <span>Blink AI</span>
+        </div>
+        <div class="popup-title">Smart Shopping <span class="green">Assistant</span></div>
+        <p class="popup-desc">Tell Blink what you need, and it will create your cart.</p>
+        <div class="popup-suggestion">Ask Blink to add items within your budget e.g. veggies under ₹100</div>
+        <div class="popup-suggestion">Ask Blink to suggest healthy, low-calorie snacks</div>
+        <div class="popup-suggestion">Ask Blink to make a weekly grocery list</div>
+        <div class="popup-footer">Tap here to Explore</div>
+      </div>
+      <div class="ai-btn-highlight">
+        <div class="ai-tab-btn"><img src="Assets/Home/ai.svg" alt=""></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Home with Popup visible (rationale only, static) -->
+  <div data-screen="edu" style="height:100%;width:100%;position:relative;background:#fff;overflow:hidden">
+    <img src="New assets/status_bar.png" alt="" style="width:375px;height:44px;display:block;object-fit:cover">
+    <div style="padding:8px 24px 0"><div style="display:flex;justify-content:space-between;align-items:center;height:34px"><div class="location-pill"><span class="dot"></span><span>Sector 38, Gurugram</span><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M3 4.5l3 3 3-3"/></svg></div><div class="home-icons"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><div style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><div style="position:absolute;top:0;right:0;width:8px;height:8px;background:#e53935;border-radius:50%;border:1.5px solid #fff"></div></div></div></div></div>
+    <div class="ai-banner" style="margin:12px 24px"><div class="ai-banner-text"><div class="ai-label"><img src="New assets/Blink AI logo.svg" alt="" style="width:20px;height:20px"><span>Blink AI</span></div><h3>Try Blink AI<br>to shop faster</h3><div class="banner-dots"><div class="bdot active"></div><div class="bdot"></div></div></div><div class="ai-banner-img"><img src="New assets/Orb.png" alt=""></div></div>
+    <div class="search-bar" style="margin:8px 24px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Search Milk</span><div class="filter-icon"><img src="Assets/Home/Filter.svg" alt="" style="width:20px;height:20px"></div></div>
+    <div class="section-header"><h4>Shop by Category</h4><span class="see-all">See All</span></div>
+    <div class="categories"><div class="category-item"><div class="cat-img"><img src="Assets/Home/Image Placeholder.png" alt=""></div><span>Fruits</span></div><div class="category-item"><div class="cat-img"><img src="Assets/Home/Image Placeholder-1.png" alt=""></div><span>Veggies</span></div><div class="category-item"><div class="cat-img"><img src="Assets/Home/Image Placeholder-2.png" alt=""></div><span>Meats</span></div><div class="category-item"><div class="cat-img"><img src="Assets/Home/Image Placeholder-3.png" alt=""></div><span>Seafood</span></div></div>
+    <div class="flash-sale-header"><h4>Flash Sale</h4><span class="flash-timer">03:32:29</span><span class="see-all">See All</span></div>
+    <div class="product-row"><div class="product-card"><div class="product-img"><img src="Assets/Home/fresh-orange-fruit-isolated-white-background 1.png" alt=""><div class="heart-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div></div><div class="product-info"><div class="name">Orange</div><div class="price-row"><span class="price">₹120</span><span class="original-price">/kg</span></div></div></div><div class="product-card"><div class="product-img"><img src="Assets/Home/strawberry 1.png" alt=""><div class="heart-btn"><svg viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div></div><div class="product-info"><div class="name">Strawberry</div><div class="price-row"><span class="price">₹150</span><span class="original-price">/kg</span></div></div></div></div>
+    <!-- Tab bar -->
+    <div style="position:absolute;bottom:0;left:0;right:0;height:84px;background:#fff;border-top:1px solid #f0f0f0;display:flex;align-items:flex-start;justify-content:space-around;padding-top:10px;padding-left:12px;padding-right:12px;z-index:20">
+      <div class="tab-item active" style="width:56px"><img src="Assets/Home/Home.svg" alt="" style="width:22px;height:22px"><span>Home</span></div>
+      <div class="tab-item" style="width:56px"><img src="Assets/Home/Bag.svg" alt="" style="width:22px;height:22px"><span>Print</span></div>
+      <div class="ai-tab-center"><div class="ai-tab-btn"><img src="Assets/Home/ai.svg" alt=""></div><span class="ai-tab-label">Blink AI</span></div>
+      <div class="tab-item" style="width:56px"><img src="Assets/Home/Heart - Iconly Pro.svg" alt="" style="width:22px;height:22px"><span>Saved</span></div>
+      <div class="tab-item" style="width:56px"><img src="Assets/Home/Profile.svg" alt="" style="width:22px;height:22px"><span>Profile</span></div>
+    </div>
+    <!-- Popup overlay VISIBLE (static) -->
+    <div style="position:absolute;inset:0;z-index:50;background:rgba(0,0,0,0.45)">
+      <div class="blinkai-popup" style="opacity:1;transform:translateX(-50%) translateY(0)">
+        <div class="popup-header">
+          <img src="New assets/Blink AI logo.svg" alt="">
+          <span>Blink AI</span>
+        </div>
+        <div class="popup-title">Smart Shopping <span class="green">Assistant</span></div>
+        <p class="popup-desc">Tell Blink what you need, and it will create your cart.</p>
+        <div class="popup-suggestion">Ask Blink to add items within your budget e.g. veggies under ₹100</div>
+        <div class="popup-suggestion">Ask Blink to suggest healthy, low-calorie snacks</div>
+        <div class="popup-suggestion">Ask Blink to make a weekly grocery list</div>
+        <div class="popup-footer">Tap here to Explore</div>
+      </div>
+      <div class="ai-btn-highlight">
+        <div class="ai-tab-btn" style="display: none;"><img src="Assets/Home/ai.svg" alt=""></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: Chat Greeting -->
+  <div data-screen="2" class="ai-chat-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" class="ai-status-bar">
+    <div class="ai-chat-header"><div class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div><div class="ai-logo-row"><img src="Assets/Home/ai.svg" alt=""><span>Blink AI</span></div></div>
+    <div class="ai-chat-body"><div class="ai-msg chat-greet-msg"></div><p class="try-asking chat-greet-try" style="opacity:0">Try Asking:</p><div class="chat-greet-chips" style="display:flex;flex-direction:column;gap:8px;align-items:flex-start"><div class="suggestion-chip" style="opacity:0;transform:translateY(-15px)">High protein snacks</div><div class="suggestion-chip" style="opacity:0;transform:translateY(-15px)">Fruits under ₹200</div><div class="suggestion-chip" style="opacity:0;transform:translateY(-15px)">Organic vegetables</div><div class="suggestion-chip" style="opacity:0;transform:translateY(-15px)">Low calorie food</div><div class="suggestion-chip" style="opacity:0;transform:translateY(-15px)">Party snacks</div></div></div>
+    <div class="chat-input-bar"><div class="input-text">Ask anything</div><div class="chat-input-actions"><div class="plus-btn" style="color:#fff;font-size:20px">+</div><img src="Assets/voice 2.svg" alt="" class="voice-trigger" style="width:24px;height:24px;cursor:pointer"></div></div>
+  </div>
+
+  <!-- SCREEN 4: Chat Greeting (static for rationale) -->
+  <div data-screen="chat-static" class="ai-chat-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" class="ai-status-bar">
+    <div class="ai-chat-header"><div class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div><div class="ai-logo-row"><img src="Assets/Home/ai.svg" alt=""><span>Blink AI</span></div></div>
+    <div class="ai-chat-body"><div class="ai-msg">Hi, I'm Blink AI.<br>Tell me what you want to buy, and I'll build your cart for you.</div><p class="try-asking">Try Asking:</p><div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start"><div class="suggestion-chip">High protein snacks</div><div class="suggestion-chip">Fruits under ₹200</div><div class="suggestion-chip">Organic vegetables</div><div class="suggestion-chip">Low calorie food</div><div class="suggestion-chip">Party snacks</div></div></div>
+    <div class="chat-input-bar"><div class="input-text">Ask anything</div><div class="chat-input-actions"><div class="plus-btn" style="color:#fff;font-size:20px">+</div><img src="Assets/voice 2.svg" alt="" style="width:24px;height:24px"></div></div>
+  </div>
+
+  <!-- SCREEN 4.1: Chat User Message (rationale only) -->
+  <div data-screen="chat41" class="ai-chat-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" class="ai-status-bar">
+    <div class="ai-chat-header"><div class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div><div class="ai-logo-row"><img src="Assets/Home/ai.svg" alt=""><span>Blink AI</span></div></div>
+    <div class="ai-chat-body"><div class="ai-msg">Hi, I'm Blink AI.<br>Tell me what you want to buy, and I'll build your cart for you.</div><div class="user-bubble"><span>Fruits under ₹200</span></div><div class="typing-indicator"><span></span><span></span><span></span></div></div>
+    <div class="chat-input-bar"><div class="input-text">Ask anything</div><div class="chat-input-actions"><div class="plus-btn" style="color:#fff;font-size:20px">+</div><img src="Assets/voice 2.svg" alt="" style="width:24px;height:24px"></div></div>
+  </div>
+
+  <!-- SCREEN 4.2: Chat AI Response (rationale only) -->
+  <div data-screen="chat42" class="ai-chat-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" class="ai-status-bar">
+    <div class="ai-chat-header"><div class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div><div class="ai-logo-row"><img src="Assets/Home/ai.svg" alt=""><span>Blink AI</span></div></div>
+    <div class="ai-chat-body"><div class="ai-msg">Hi, I'm Blink AI.<br>Tell me what you want to buy, and I'll build your cart for you.</div><div class="user-bubble"><span>Fruits under ₹200</span></div><div class="ai-msg">We've found 3 fruits that fits your budget ₹200</div>
+    <div class="ai-product-card"><div class="card-header"><span>Best Match</span><span class="view-all">View all</span></div><div class="ai-product-items"><div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image.png" alt=""></div><div class="prod-details"><div class="prod-name">Super Banana</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹40</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div><div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-1.png" alt=""></div><div class="prod-details"><div class="prod-name">Big Avocado</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹90</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div><div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-2.png" alt=""></div><div class="prod-details"><div class="prod-name">Cherry</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹85</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div></div><div class="card-footer"><div><span class="total-label">Total value</span><span class="total-value">₹195</span></div><button class="add-to-cart-btn">Add to cart</button></div></div></div>
+    <div class="chat-input-bar"><div class="input-text">Ask anything</div><div class="chat-input-actions"><div class="plus-btn" style="color:#fff;font-size:20px">+</div><img src="Assets/voice 2.svg" alt="" style="width:24px;height:24px"></div></div>
+  </div>
+
+  <!-- SCREEN 5: Voice Immersive -->
+  <div data-screen="3" class="voice-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" class="ai-status-bar">
+    <div class="ai-chat-header"><div class="ai-logo-row"><img src="Assets/Home/ai.svg" alt=""><span>Blink AI</span></div></div>
+    <div class="voice-body">
+      <div class="voice-chat-content voice-immersive-chat" style="overflow-y:auto;max-height:calc(100% - 20px)"></div>
+      <div class="wave-container"><div class="wave-animated"></div><div class="wave-gradient-overlay"></div></div>
+    </div>
+    <div class="voice-controls"><div class="mic-btn"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></div><div class="close-btn"><svg viewBox="0 0 24 24" fill="#fff"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div></div>
+  </div>
+
+  <!-- SCREEN 5.3: Voice Conversation (rationale only) -->
+  <div data-screen="voice54" class="voice-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" class="ai-status-bar">
+    <div class="ai-chat-header"><div class="ai-logo-row"><img src="Assets/Home/ai.svg" alt=""><span>Blink AI</span></div></div>
+    <div class="voice-body"><div class="voice-chat-content"><div class="ai-msg" style="margin-top:8px;font-size:16px"><span class="label">Blink AI:</span> Hi, I'm Blink AI.<br>Tell me what you want to buy, and I'll build your cart for you.</div><div class="user-msg" style="font-size:16px"><span class="label">You:</span> Fruits under ₹200</div><div class="ai-msg" style="font-size:16px"><span class="label">Blink AI:</span> We've found 3 fruits that fits your budget ₹200</div><div class="ai-product-card"><div class="card-header"><span>Best Match</span><span class="view-all">View all</span></div><div class="ai-product-items"><div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image.png" alt=""></div><div class="prod-details"><div class="prod-name">Super Banana</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹40</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div><div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-1.png" alt=""></div><div class="prod-details"><div class="prod-name">Big Avocado</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹90</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div><div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-2.png" alt=""></div><div class="prod-details"><div class="prod-name">Cherry</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹85</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div></div><div class="card-footer"><div><span class="total-label">Total value</span><span class="total-value">₹195</span></div><button class="add-to-cart-btn">Add to cart</button></div></div></div><div class="wave-container"><div class="wave-animated"></div><div class="wave-gradient-overlay"></div></div></div>
+    <div class="voice-controls"><div class="mic-btn"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></div><div class="close-btn"><svg viewBox="0 0 24 24" fill="#fff"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div></div>
+  </div>
+
+  <!-- SCREEN 5.9: Voice Added + View Cart (rationale only) -->
+  <div data-screen="voice59" class="voice-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" class="ai-status-bar">
+    <div class="ai-chat-header"><div class="ai-logo-row"><img src="Assets/Home/ai.svg" alt=""><span>Blink AI</span></div></div>
+    <div class="voice-body"><div class="voice-chat-content"><div class="ai-product-card" style="margin-top:8px"><div class="card-header"><span>Best Match</span><span class="view-all">View all</span></div><div class="ai-product-items"><div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image.png" alt=""></div><div class="prod-details"><div class="prod-name">Super Banana</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹40</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div><div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-1.png" alt=""></div><div class="prod-details"><div class="prod-name">Big Avocado</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹90</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div><div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-2.png" alt=""></div><div class="prod-details"><div class="prod-name">Strawberry</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹89</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div></div><div class="card-footer"><div><span class="total-label">Total Orders</span><span class="total-value">₹195</span></div><div class="added-btn"><svg viewBox="0 0 16 16" fill="currentColor" style="width:14px;height:14px"><path d="M13.485 3.515a1 1 0 010 1.414l-7.07 7.07a1 1 0 01-1.415 0l-3.535-3.535a1 1 0 111.414-1.414L5.7 9.879l6.364-6.364a1 1 0 011.414 0z"/></svg>Added</div></div></div><div class="ai-msg"><span class="label">Blink AI:</span> Added to your cart, click at the bottom to check out</div><div class="view-cart-pill"><div class="cart-thumbs"><img src="Assets/Product Image.png" alt=""><img src="Assets/Product Image-1.png" alt=""><img src="Assets/Product Image-2.png" alt=""></div><div><div class="cart-text">View Cart</div><div class="cart-count">3 Items</div></div><div class="cart-arrow">›</div></div></div><div class="wave-container"><div class="wave-animated"></div><div class="wave-gradient-overlay"></div></div></div>
+    <div class="voice-controls"><div class="mic-btn"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg></div><div class="close-btn"><svg viewBox="0 0 24 24" fill="#fff"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></div></div>
+  </div>
+
+  <!-- SCREEN 6: Result -->
+  <div data-screen="4" class="result-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" style="width:375px;height:44px;flex-shrink:0;display:block;object-fit:cover">
+    <div class="result-header" style="padding-top:12px"><div class="back"><img src="Assets/Arrow - Left.svg" alt="Back" style="width:24px;height:24px"></div><h3>Result</h3><div class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div></div>
+    <div class="result-tabs"><div class="result-tab active" data-tab="best">Best Match</div><div class="result-tab" data-tab="suggested">Suggested</div><div class="result-tab" data-tab="alt">Alternative</div></div>
+    <!-- Best Match list -->
+    <div class="result-list result-tab-content" data-tab-content="best"><div class="result-item"><div class="r-thumb" style="background:#fef9e7"><img src="Assets/Product Image.png" alt=""></div><div class="r-info"><div class="r-name">Super Banana</div><div class="r-price">₹40</div></div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div><div class="result-item"><div class="r-thumb" style="background:#f0f7e6"><img src="Assets/Product Image-1.png" alt=""></div><div class="r-info"><div class="r-name">Big Avocado</div><div class="r-price">₹90</div></div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div><div class="result-item"><div class="r-thumb" style="background:#fde8e8"><img src="Assets/Product Image-2.png" alt=""></div><div class="r-info"><div class="r-name">Cherry</div><div class="r-price">₹85</div></div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div>
+    <!-- Suggested list -->
+    <div class="result-list result-tab-content" data-tab-content="suggested" style="display:none"><div class="result-item"><div class="r-thumb" style="background:#fde8e8"><img src="Assets/Home/strawberry 1.png" alt=""></div><div class="r-info"><div class="r-name">Strawberry</div><div class="r-price">₹60</div></div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div><div class="result-item"><div class="r-thumb" style="background:#fff3e0"><img src="Assets/Home/fresh-orange-fruit-isolated-white-background 1.png" alt=""></div><div class="r-info"><div class="r-name">Orange</div><div class="r-price">₹60</div></div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div><div class="result-item"><div class="r-thumb" style="background:#fde8e8"><img src="Assets/Product Image-2.png" alt=""></div><div class="r-info"><div class="r-name">Cherry</div><div class="r-price">₹85</div></div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div>
+    <!-- Alternative list (placeholder) -->
+    <div class="result-list result-tab-content" data-tab-content="alt" style="display:none"><div style="padding:40px 0;text-align:center;color:#aaa;font-size:14px">No alternatives available</div></div>
+    <div class="result-footer"><div class="total-row"><span class="lbl">Total Value</span><span class="val result-total-val">₹195</span></div><button class="full-btn">Add to cart</button></div>
+  </div>
+
+  <!-- SCREEN 7: Checkout -->
+  <div data-screen="5" class="checkout-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" style="width:375px;height:44px;flex-shrink:0;display:block;object-fit:cover">
+    <div class="checkout-header" style="padding-top:8px"><div class="back checkout-back"><img src="Assets/Arrow - Left.svg" alt="Back" style="width:24px;height:24px;cursor:pointer"></div><h3>Checkout</h3><div class="more">⋮</div></div>
+    <div class="checkout-body"><div class="delivery-bar"><div class="deliver-top"><span>Deliver to :</span><span class="edit-btn">Edit</span></div><div class="address"><span class="red-dot"></span>B-12, Sector 38, Gurugram, HR...</div></div><div class="section-header"><h4>Products</h4><span class="see-all">See All</span></div><div class="checkout-prod-item"><div class="cp-thumb" style="background:#fef9e7"><img src="Assets/Product Image.png" alt=""></div><div class="cp-info"><div class="cp-name">Super Banana</div><div class="cp-cat">Fruites • <span class="in-stock">In stock</span></div><div class="cp-bottom"><span class="cp-qty">Qty : 1</span><span class="cp-price">₹40 /pcs</span></div></div></div><div class="checkout-prod-item"><div class="cp-thumb" style="background:#f0f7e6"><img src="Assets/Product Image-1.png" alt=""></div><div class="cp-info"><div class="cp-name">Big Avocado</div><div class="cp-cat">Veggies • <span class="in-stock">In stock</span></div><div class="cp-bottom"><span class="cp-qty">Qty : 1</span><span class="cp-price">₹90 /pcs</span></div></div></div><div class="checkout-prod-item"><div class="cp-thumb" style="background:#fde8e8"><img src="Assets/Product Image-2.png" alt=""></div><div class="cp-info"><div class="cp-name">Cherry</div><div class="cp-cat">Veggies • <span class="in-stock">In stock</span></div><div class="cp-bottom"><span class="cp-qty">Qty : 1</span><span class="cp-price">₹65 /pcs</span></div></div></div></div>
+    <div class="checkout-footer"><div class="total-row"><span class="lbl">Total amount</span><span class="val">₹195</span></div><button class="full-btn">Select Payment Method</button></div>
+  </div>
+
+  <!-- SCREEN 8: Payment -->
+  <div data-screen="6" class="payment-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" style="width:375px;height:44px;flex-shrink:0;display:block;object-fit:cover">
+    <div class="checkout-header" style="padding-top:8px"><div class="back payment-back" style="cursor:pointer"><img src="Assets/Arrow - Left.svg" alt="Back" style="width:24px;height:24px"></div><h3>Payment Method</h3><div class="more" style="font-size:24px">+</div></div>
+    <div style="padding:0 24px;margin-bottom:12px;margin-top:8px"><h4 style="font-size:14px;font-weight:600;color:#111">Frequently Used</h4></div>
+    <div class="payment-option selected"><div class="pay-icon" style="background:#e8f5e9;color:var(--primary-green);font-size:18px;font-weight:800">P</div><div class="pay-info"><div class="pay-name">My Wallet</div><div class="pay-desc">₹4,250</div></div></div>
+    <div style="padding:0 24px;margin:16px 0 12px"><h4 style="font-size:14px;font-weight:600;color:#111">Other Method</h4></div>
+    <div class="payment-option"><div class="pay-icon"><img src="Assets/HandCoins.svg" alt="" style="width:24px;height:24px"></div><div class="pay-info"><div class="pay-name">PayLater</div><div class="pay-desc">Firstly you should complete your data</div></div><span class="chevron">›</span></div>
+    <div class="payment-option"><div class="pay-icon"><img src="Assets/CreditCard.svg" alt="" style="width:24px;height:24px"></div><div class="pay-info"><div class="pay-name">Debit Card</div><div class="pay-desc">Not added</div></div><span class="chevron">›</span></div>
+    <div class="payment-option"><div class="pay-icon"><img src="Assets/brv.svg" alt="" style="width:24px;height:24px"></div><div class="pay-info"><div class="pay-name">BRAVI</div><div class="pay-desc">1284 - 4395 - 5443 - 3438</div></div><span class="chevron">›</span></div>
+    <div class="payment-option"><div class="pay-icon" style="font-size:12px;font-weight:700;color:var(--primary-green)">AB</div><div class="pay-info"><div class="pay-name">Asian Bank</div><div class="pay-desc">Not added</div></div><span class="chevron">›</span></div>
+    <div style="position:absolute;bottom:32px;left:24px;right:24px"><button class="full-btn payment-pay-btn">Pay Now (₹195)</button></div>
+  </div>
+
+  <!-- SCREEN 9: Success -->
+  <div data-screen="7" class="success-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" style="width:375px;height:44px;flex-shrink:0;display:block;object-fit:cover;position:absolute;top:0;left:0;right:0;z-index:2">
+    <div class="success-back" style="position:absolute;top:52px;left:24px;z-index:3;cursor:pointer"><img src="Assets/Arrow - Left.svg" alt="Back" style="width:24px;height:24px"></div>
+    <div class="success-check" style="opacity:0;transform:scale(0)">
+      <div style="position:absolute;top:10%;left:15%;width:8px;height:8px;background:#4CAF50;border-radius:2px;transform:rotate(30deg)" class="confetti-piece"></div>
+      <div style="position:absolute;top:5%;left:55%;width:6px;height:12px;background:#2196F3;border-radius:6px;transform:rotate(-20deg)" class="confetti-piece"></div>
+      <div style="position:absolute;top:70%;left:5%;width:10px;height:4px;background:#FF9800;border-radius:2px;transform:rotate(60deg)" class="confetti-piece"></div>
+      <div style="position:absolute;top:65%;right:5%;width:6px;height:10px;background:#E91E63;border-radius:3px;transform:rotate(-45deg)" class="confetti-piece"></div>
+      <div style="position:absolute;top:15%;right:15%;width:4px;height:12px;background:#00BCD4;border-radius:2px;transform:rotate(15deg)" class="confetti-piece"></div>
+      <div class="outer-ring"><div class="inner-circle"><svg viewBox="0 0 56 56" fill="none" width="56" height="56"><path class="check-path" d="M15 28l9 9 17-17" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="50" stroke-dashoffset="50"/></svg></div></div>
+    </div>
+    <h2 class="success-title" style="opacity:0">Wow! your Payment is Successful</h2>
+    <p class="success-desc" style="opacity:0">Your payment is successful! Please wait for your product to arrive at your home</p>
+    <div style="position:absolute;bottom:32px;left:24px;right:24px"><button class="full-btn success-home-btn" style="opacity:0">Back to Home</button></div>
+  </div>
+
+  <!-- SCREEN 9: Success (static for rationale) -->
+  <div data-screen="success-static" class="success-screen" style="height:100%">
+    <img src="New assets/status_bar.png" alt="" style="width:375px;height:44px;flex-shrink:0;display:block;object-fit:cover;position:absolute;top:0;left:0;right:0;z-index:2">
+    <div style="position:absolute;top:52px;left:24px;z-index:3"><img src="Assets/Arrow - Left.svg" alt="Back" style="width:24px;height:24px"></div>
+    <div class="success-check">
+      <div style="position:absolute;top:10%;left:15%;width:8px;height:8px;background:#4CAF50;border-radius:2px;transform:rotate(30deg)"></div>
+      <div style="position:absolute;top:5%;left:55%;width:6px;height:12px;background:#2196F3;border-radius:6px;transform:rotate(-20deg)"></div>
+      <div style="position:absolute;top:70%;left:5%;width:10px;height:4px;background:#FF9800;border-radius:2px;transform:rotate(60deg)"></div>
+      <div style="position:absolute;top:65%;right:5%;width:6px;height:10px;background:#E91E63;border-radius:3px;transform:rotate(-45deg)"></div>
+      <div style="position:absolute;top:15%;right:15%;width:4px;height:12px;background:#00BCD4;border-radius:2px;transform:rotate(15deg)"></div>
+      <div class="outer-ring"><div class="inner-circle"><svg viewBox="0 0 56 56" fill="none" width="56" height="56"><path d="M15 28l9 9 17-17" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+    </div>
+    <h2 class="success-title">Wow! your Payment is Successful</h2>
+    <p class="success-desc">Your payment is successful! Please wait for your product to arrive at your home</p>
+    <div style="position:absolute;bottom:32px;left:24px;right:24px"><button class="full-btn">Back to Home</button></div>
+  </div>
+</div>
+<!-- END screen templates -->
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT — Interactive Prototype
+     ═══════════════════════════════════════ -->
+<script>
+gsap.registerPlugin(ScrollTrigger, TextPlugin);
+
+// Screen data
+const screens = [
+  { num: '01', name: 'Splash Screen', label: 'SCREEN 01', title: 'Splash Screen', desc: 'The yellow brand screen establishes BlinkMart\'s energetic identity. Bold typography — "Blink" in black, "Mart" in green — creates instant recognition while communicating freshness.', tags: [{t:'Brand Identity',c:'gold'},{t:'Trust Building',c:''}], details: ['Brand yellow (#F8CB46) conveys warmth and optimism','Plus Jakarta Sans ExtraBold for maximum impact','Version number builds transparency','Auto-dismisses after 2s to minimize friction'] },
+  { num: '02', name: 'Home', label: 'SCREEN 02', title: 'Home — The Familiar Base', desc: 'Conventional grocery app patterns — categories, flash sales, promos — so users feel instantly comfortable. The Blink AI banner and purple AI tab button introduce the new paradigm gently.', tags: [{t:'Assist, Not Replace',c:''},{t:'AI Discovery',c:'purple'}], details: ['Manual shopping remains fully functional','Blink AI banner creates awareness without disruption','AI button in tab bar is persistent but non-intrusive','Familiar patterns: categories, flash sales, promos'] },
+  { num: '04', name: 'Chat — AI Greeting', label: 'SCREEN 04', title: 'Chat Mode — AI Greeting', desc: 'Dark interface signals "AI mode". Five suggestion chips eliminate the blank canvas problem, giving users ready-made starting points from user research.', tags: [{t:'Dual Input Mode',c:'purple'},{t:'Always Editable',c:''}], details: ['Dark theme = AI mode, Light = commerce mode','5 chips from actual user research personas','Text + voice input available simultaneously','Back arrow ensures escape to manual shopping'] },
+  { num: '05', name: 'Voice Mode', label: 'SCREEN 05', title: 'Immersive Voice Mode', desc: 'Full-screen dark interface with ambient wave visualization. Designed for hands-free, on-the-go shopping. The gradient wave provides visual feedback that the system is listening.', tags: [{t:'Voice-First UX',c:'purple'},{t:'Immersive',c:'orange'}], details: ['Full-screen removes distractions','Wave animation = visual listening feedback','Dark gradient signals premium AI experience','Two clear actions: mic (continue) and close (exit)'] },
+  { num: '06', name: 'Result Screen', label: 'SCREEN 06', title: 'Result — Confidence System', desc: 'Three tabs — Best Match, Suggested, Alternative — are the trust architecture\'s heart. Users see why each item was picked and explore alternatives. No black box.', tags: [{t:'Confidence Transparency',c:''},{t:'3-Tier System',c:'purple'}], details: ['Best Match: Highest relevance + budget fit','Suggested: Good alternatives for variety','Alternative: Swap options','Full "Add to cart" for explicit user action'] },
+  { num: '07', name: 'Checkout', label: 'SCREEN 07', title: 'Checkout — Familiar Territory', desc: 'Intentionally conventional. After AI cart creation, users land on a standard checkout they trust. Wallet, delivery, products, payment — no surprises.', tags: [{t:'Assist, Not Replace',c:''},{t:'Trust Continuity',c:'gold'}], details: ['Standard checkout — zero learning curve','Wallet balance shown upfront','Delivery address editable','Total matches AI calculation — builds trust'] },
+  { num: '08', name: 'Payment Method', label: 'SCREEN 08', title: 'Payment Selection', desc: 'Standard payment selection with multiple options. "Frequently Used" puts wallet front and center — reducing taps. Green highlight on selected method provides clear feedback.', tags: [{t:'Reduce Friction',c:''},{t:'Standard Patterns',c:'gold'}], details: ['Most-used method auto-highlighted','Green border signals active selection','Multiple methods: wallet, PayLater, cards, bank'] },
+  { num: '09', name: 'Payment Success', label: 'SCREEN 09', title: 'Payment Success', desc: 'Green checkmark with confetti celebrates completion. The entire flow — "Fruits under ₹200" to payment — took under 2 minutes. 60% faster than manual cart building.', tags: [{t:'Emotional Design',c:''},{t:'Goal Achievement',c:'gold'}], details: ['Green checkmark = universal success','Confetti adds celebratory micro-delight','Clear next action: "Back to Home"','Under 2 min total — 60% faster than manual'] },
+];
+
+let currentScreen = 0;
+const totalScreens = screens.length;
+
+let splashPlayed = false;
+
+// Initialize
+function init() {
+  const container = document.getElementById('screensContainer');
+  const templates = document.querySelectorAll('#screenTemplates > [data-screen]');
+
+  templates.forEach(tpl => {
+    // Skip non-numeric screens (e.g. 'edu') — they're rationale-only
+    if (isNaN(tpl.dataset.screen)) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'proto-screen';
+    wrapper.dataset.idx = tpl.dataset.screen;
+    wrapper.appendChild(tpl.cloneNode(true));
+    container.appendChild(wrapper);
+  });
+
+  // Build dot progress
+  const dotContainer = document.getElementById('dotProgress');
+  for (let i = 0; i < totalScreens; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    dotContainer.appendChild(d);
+  }
+
+  showScreen(0);
+  animateHero();
+  playSplashTransition();
+  populateScrollSections();
+  initScrollAnimations();
+}
+
+let previousScreen = 0;
+
+function showScreen(idx) {
+  previousScreen = currentScreen;
+  currentScreen = idx;
+  const allScreens = document.querySelectorAll('#screensContainer .proto-screen');
+  allScreens.forEach(s => {
+    s.classList.remove('active');
+    s.style.opacity = '';
+    s.style.transform = '';
+    s.style.zIndex = '';
+    s.style.pointerEvents = '';
+  });
+
+  const target = document.querySelector(`#screensContainer .proto-screen[data-idx="${idx}"]`);
+  if (target) target.classList.add('active');
+
+  // Hide popup overlay when leaving screen 1
+  clearTimeout(window._popupTimer);
+  const overlays = document.querySelectorAll('.blinkai-overlay');
+  overlays.forEach(o => o.classList.remove('visible'));
+
+  // Show popup after 1s on Home screen
+  if (idx === 1) {
+    window._popupTimer = setTimeout(() => {
+      const activeScreen = document.querySelector('#screensContainer .proto-screen.active');
+      if (activeScreen) {
+        const overlay = activeScreen.querySelector('.blinkai-overlay');
+        if (overlay) overlay.classList.add('visible');
+      }
+    }, 1000);
+  }
+
+  // Bind Home screen interactions
+  if (idx === 1) { bindHomeScreen(); }
+
+  // If navigating back to splash, replay the zoom animation
+  if (idx === 0 && splashPlayed) {
+    // Reset splash logo
+    const logoWrap = target ? target.querySelector('.splash-logo-wrap') : null;
+    const version = target ? target.querySelector('.splash-version') : null;
+    if (logoWrap) gsap.set(logoWrap, { scale: 1, opacity: 1 });
+    if (version) gsap.set(version, { opacity: 1 });
+    gsap.set(target, { opacity: 1 });
+    // Replay
+    setTimeout(playSplashTransition, 100);
+  }
+
+  // Update indicator
+  document.getElementById('screenNum').textContent = `${screens[idx].num} / ${screens[totalScreens-1].num}`;
+  document.getElementById('screenName').textContent = screens[idx].name;
+
+  // Update dots
+  document.querySelectorAll('#dotProgress .dot').forEach((d, i) => {
+    d.classList.toggle('active', i === idx);
+  });
+
+  // Update nav buttons
+  document.getElementById('prevBtn').classList.toggle('disabled', idx === 0);
+  document.getElementById('nextBtn').classList.toggle('disabled', idx === totalScreens - 1);
+
+  // Update rationale
+  updateRationale(idx);
+
+  // Animate chat greeting on Screen 4 (idx 2) — skip if flagged static
+  if (idx === 2) {
+    if (window._showChatStatic) {
+      window._showChatStatic = false;
+      showChatGreetingStatic();
+    } else {
+      animateChatGreeting();
+    }
+  }
+
+  // Animate voice immersive on Screen 5 (idx 3) — skip if flagged static
+  if (idx === 3) {
+    if (window._showVoiceStatic) {
+      window._showVoiceStatic = false;
+      // Don't re-animate — keep the chat content as-is
+    } else {
+      animateVoiceImmersive();
+    }
+    // Bind close button → back to static chat
+    setTimeout(() => {
+      const vs = document.querySelector('#screensContainer .proto-screen[data-idx="3"]');
+      if (vs && !vs._closeBound) {
+        vs._closeBound = true;
+        vs.querySelector('.close-btn').addEventListener('click', () => {
+          window._showChatStatic = true;
+          showScreen(2);
+        });
+      }
+    }, 100);
+  }
+
+  // Bind back button on Screen 6 (Result, idx 4) → go to previous screen
+  if (idx === 4) {
+    setTimeout(() => {
+      const rs = document.querySelector('#screensContainer .proto-screen[data-idx="4"]');
+      if (rs) {
+        const backBtn = rs.querySelector('.result-header .back');
+        if (backBtn && !backBtn._bound) {
+          backBtn._bound = true;
+          backBtn.style.cursor = 'pointer';
+          backBtn.addEventListener('click', () => {
+            if (previousScreen === 2) window._showChatStatic = true;
+            if (previousScreen === 3) window._showVoiceStatic = true;
+            showScreen(previousScreen);
+          });
+        }
+
+        // Bind tab switching
+        const tabs = rs.querySelectorAll('.result-tab');
+        const totals = { best: '₹195', suggested: '₹205', alt: '₹195' };
+        tabs.forEach(tab => {
+          if (tab._tabBound) return;
+          tab._tabBound = true;
+          tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const key = tab.dataset.tab;
+            rs.querySelectorAll('.result-tab-content').forEach(c => c.style.display = 'none');
+            const target = rs.querySelector('[data-tab-content="' + key + '"]');
+            if (target) target.style.display = '';
+            const totalEl = rs.querySelector('.result-total-val');
+            if (totalEl) totalEl.textContent = totals[key] || '₹195';
+          });
+        });
+
+        // Bind Add to cart → Added → Go to cart on Result screen
+        const addBtn = rs.querySelector('.result-footer .full-btn');
+        if (addBtn && !addBtn._bound) {
+          addBtn._bound = true;
+          addBtn.addEventListener('click', () => {
+            // Change to Added
+            addBtn.outerHTML = '<div class="added-btn" id="resultAddedBtn" style="width:100%;justify-content:center;padding:16px;border-radius:16px;font-size:16px"><svg viewBox="0 0 16 16" fill="currentColor" style="width:18px;height:18px"><path d="M13.485 3.515a1 1 0 010 1.414l-7.07 7.07a1 1 0 01-1.415 0l-3.535-3.535a1 1 0 111.414-1.414L5.7 9.879l6.364-6.364a1 1 0 011.414 0z"/></svg>Added</div>';
+            // After 1s switch to Go to cart
+            setTimeout(() => {
+              const addedEl = rs.querySelector('#resultAddedBtn');
+              if (addedEl) {
+                addedEl.outerHTML = '<button class="full-btn result-go-cart" style="cursor:pointer">Go to cart</button>';
+                setTimeout(() => {
+                  const goBtn = rs.querySelector('.result-go-cart');
+                  if (goBtn) goBtn.addEventListener('click', () => showScreen(5));
+                }, 50);
+              }
+            }, 1000);
+          });
+        }
+      }
+    }, 100);
+  }
+
+  // Bind back button on Screen 7 (Checkout, idx 5) → go to previous screen
+  if (idx === 5) {
+    setTimeout(() => {
+      const cs = document.querySelector('#screensContainer .proto-screen[data-idx="5"]');
+      if (cs) {
+        const backBtn = cs.querySelector('.checkout-back');
+        if (backBtn && !backBtn._bound) {
+          backBtn._bound = true;
+          backBtn.addEventListener('click', () => {
+            if (previousScreen === 2) window._showChatStatic = true;
+            if (previousScreen === 3) window._showVoiceStatic = true;
+            showScreen(previousScreen);
+          });
+        }
+        const payBtn = cs.querySelector('.checkout-footer .full-btn');
+        if (payBtn && !payBtn._bound) {
+          payBtn._bound = true;
+          payBtn.addEventListener('click', () => showScreen(6));
+        }
+      }
+    }, 100);
+  }
+
+  // Animate + bind Screen 9 (Success, idx 7)
+  if (idx === 7) {
+    setTimeout(() => {
+      const ss = document.querySelector('#screensContainer .proto-screen[data-idx="7"]');
+      if (!ss) return;
+
+      const check = ss.querySelector('.success-check');
+      const title = ss.querySelector('.success-title');
+      const desc = ss.querySelector('.success-desc');
+      const btn = ss.querySelector('.success-home-btn');
+      const confetti = ss.querySelectorAll('.confetti-piece');
+      const checkPath = ss.querySelector('.check-path');
+
+      // Reset
+      gsap.set(check, { opacity: 0, scale: 0 });
+      gsap.set([title, desc, btn], { opacity: 0 });
+      confetti.forEach(c => gsap.set(c, { opacity: 0, scale: 0 }));
+      if (checkPath) checkPath.style.strokeDashoffset = '50';
+
+      // Animate check circle
+      gsap.to(check, { opacity: 1, scale: 1, duration: 0.6, delay: 0.2, ease: 'back.out(1.7)' });
+
+      // Draw checkmark stroke
+      gsap.to(checkPath, { strokeDashoffset: 0, duration: 0.5, delay: 0.7, ease: 'power2.out' });
+
+      // Confetti burst
+      confetti.forEach((c, i) => {
+        gsap.to(c, { opacity: 1, scale: 1, duration: 0.3, delay: 0.8 + i * 0.08, ease: 'back.out(2)' });
+        gsap.to(c, {
+          y: gsap.utils.random(-8, 8), x: gsap.utils.random(-5, 5),
+          rotation: gsap.utils.random(-20, 20),
+          duration: 1.5, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.2
+        });
+      });
+
+      // Text + button
+      gsap.to(title, { opacity: 1, y: 0, duration: 0.4, delay: 1.1 });
+      gsap.to(desc, { opacity: 1, y: 0, duration: 0.4, delay: 1.3 });
+      gsap.to(btn, { opacity: 1, duration: 0.4, delay: 1.5 });
+
+      // Bind back + home → Screen 2
+      const backBtn = ss.querySelector('.success-back');
+      if (backBtn && !backBtn._bound) {
+        backBtn._bound = true;
+        backBtn.addEventListener('click', () => showScreen(1));
+      }
+      if (btn && !btn._bound) {
+        btn._bound = true;
+        btn.addEventListener('click', () => showScreen(1));
+      }
+    }, 100);
+  }
+
+  // Bind Screen 8 (Payment, idx 6)
+  if (idx === 6) {
+    setTimeout(() => {
+      const ps = document.querySelector('#screensContainer .proto-screen[data-idx="6"]');
+      if (ps) {
+        const backBtn = ps.querySelector('.payment-back');
+        if (backBtn && !backBtn._bound) {
+          backBtn._bound = true;
+          backBtn.addEventListener('click', () => showScreen(previousScreen));
+        }
+        const payBtn = ps.querySelector('.payment-pay-btn');
+        if (payBtn && !payBtn._bound) {
+          payBtn._bound = true;
+          payBtn.addEventListener('click', () => showScreen(7));
+        }
+      }
+    }, 100);
+  }
+}
+
+function navigateScreen(dir) {
+  const next = currentScreen + dir;
+  if (next < 0 || next >= totalScreens) return;
+  showScreen(next);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigateScreen(1);
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') navigateScreen(-1);
+});
+
+function updateRationale(idx) {
+  // No-op — rationale is now in scroll sections below
+}
+
+// Populate scroll section phones with cloned screens
+function populateScrollSections() {
+  const sectionMap = [
+    { phone: 'sec1-phone', screen: '0' },
+    { phone: 'sec2-phone', screen: '1' },
+    { phone: 'sec3-phone', screen: 'edu' },  // education (rationale only)
+    { phone: 'sec4-phone', screen: 'chat-static' },
+    { phone: 'sec5-phone', screen: 'chat42' },  // 4.2 chat response (rationale only)
+    { phone: 'sec6-phone', screen: '3' },  // voice immersive
+    { phone: 'sec7-phone', screen: 'voice54' },  // voice conversation (rationale only)
+    { phone: 'sec9-phone', screen: '4' },  // result
+    { phone: 'sec10-phone', screen: '5' }, // checkout
+    { phone: 'sec11-phone', screen: '6' }, // payment
+    { phone: 'sec12-phone', screen: 'success-static' }, // success
+  ];
+
+  sectionMap.forEach(({ phone, screen }) => {
+    const container = document.getElementById(phone);
+    const tpl = document.querySelector(`#screenTemplates > [data-screen="${screen}"]`);
+    if (container && tpl) {
+      container.appendChild(tpl.cloneNode(true));
+    }
+  });
+}
+
+// Scroll-triggered animations for rationale sections
+function initScrollAnimations() {
+  document.querySelectorAll('.screen-section').forEach(section => {
+    const phoneEl = section.querySelector('.section-phone');
+    const ratEl = section.querySelector('.rationale');
+
+    if (phoneEl) {
+      gsap.to(phoneEl, {
+        opacity: 1, x: 0, duration: 0.8, ease: 'power2.out',
+        scrollTrigger: { trigger: section, start: 'top 75%', toggleActions: 'play none none reverse' }
+      });
+    }
+    if (ratEl) {
+      gsap.to(ratEl, {
+        opacity: 1, x: 0, duration: 0.8, delay: 0.2, ease: 'power2.out',
+        scrollTrigger: { trigger: section, start: 'top 75%', toggleActions: 'play none none reverse' }
+      });
+      ratEl.querySelectorAll('.detail-list li').forEach((item, i) => {
+        gsap.from(item, {
+          opacity: 0, x: 20, duration: 0.5, delay: 0.4 + i * 0.1,
+          scrollTrigger: { trigger: section, start: 'top 70%', toggleActions: 'play none none reverse' }
+        });
+      });
+    }
+  });
+}
+
+// Bind all Home screen click handlers
+function bindHomeScreen() {
+  const screen = document.querySelector('#screensContainer .proto-screen[data-idx="1"]');
+  if (!screen || screen._homeBound) return;
+  screen._homeBound = true;
+
+  // Click anywhere on overlay → dismiss
+  const overlay = screen.querySelector('.blinkai-overlay');
+  if (overlay) {
+    overlay.addEventListener('click', () => {
+      overlay.classList.remove('visible');
+    });
+  }
+
+  // AI button in tab bar → dismiss popup + go to screen 4
+  const aiBtn = screen.querySelector('.ai-tab-center');
+  if (aiBtn) {
+    aiBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (overlay) overlay.classList.remove('visible');
+      showScreen(2);
+    });
+  }
+
+  // Popup suggestion chips → dismiss + go to screen 4
+  screen.querySelectorAll('.popup-suggestion').forEach(s => {
+    s.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (overlay) overlay.classList.remove('visible');
+      showScreen(2);
+    });
+  });
+}
+
+// Chat greeting static (no animation)
+function showChatGreetingStatic() {
+  const screen = document.querySelector('#screensContainer .proto-screen[data-idx="2"]');
+  if (!screen) return;
+
+  const msgEl = screen.querySelector('.chat-greet-msg');
+  const tryEl = screen.querySelector('.chat-greet-try');
+  const chips = screen.querySelectorAll('.chat-greet-chips .suggestion-chip');
+
+  // Remove old dynamic elements
+  const oldBubble = screen.querySelector('.user-bubble-dynamic');
+  if (oldBubble) oldBubble.remove();
+  screen.querySelectorAll('.ai-product-card').forEach(c => c.remove());
+  screen.querySelectorAll('.typing-indicator').forEach(c => c.remove());
+  const extraMsgs = screen.querySelectorAll('.ai-chat-body > .ai-msg:not(.chat-greet-msg)');
+  extraMsgs.forEach(m => m.remove());
+
+  if (msgEl) msgEl.innerHTML = "Hi, I'm Blink AI.<br>Tell me what you want to buy, and I'll build your cart for you.";
+  if (tryEl) gsap.set(tryEl, { opacity: 1 });
+  const chipsWrap = screen.querySelector('.chat-greet-chips');
+  if (chipsWrap) { chipsWrap.style.display = 'flex'; chipsWrap.style.opacity = '1'; chipsWrap.style.height = ''; }
+  chips.forEach(c => gsap.set(c, { opacity: 1, y: 0 }));
+}
+
+// Chat greeting typing animation
+function animateChatGreeting() {
+  const screen = document.querySelector('#screensContainer .proto-screen[data-idx="2"]');
+  if (!screen) return;
+
+  const msgEl = screen.querySelector('.chat-greet-msg');
+  const tryEl = screen.querySelector('.chat-greet-try');
+  const chipsWrap = screen.querySelector('.chat-greet-chips');
+  const chips = screen.querySelectorAll('.chat-greet-chips .suggestion-chip');
+  const body = screen.querySelector('.ai-chat-body');
+
+  if (!msgEl) return;
+
+  // Remove old user bubble if exists
+  const oldBubble = screen.querySelector('.user-bubble-dynamic');
+  if (oldBubble) oldBubble.remove();
+
+  // Reset state
+  msgEl.innerHTML = '';
+  gsap.set(tryEl, { opacity: 0 });
+  gsap.set(chipsWrap, { display: 'flex', opacity: 1 });
+  chips.forEach(c => gsap.set(c, { opacity: 0, y: -15 }));
+
+  const fullText = "Hi, I'm Blink AI.\nTell me what you want to buy, and I'll build your cart for you.";
+  let i = 0;
+
+  function typeChar() {
+    if (i < fullText.length) {
+      const ch = fullText[i];
+      if (ch === '\n') {
+        msgEl.innerHTML += '<br>';
+      } else {
+        msgEl.innerHTML += ch;
+      }
+      i++;
+      setTimeout(typeChar, 28);
+    } else {
+      // Typing done — show "Try Asking:" then drop chips
+      gsap.to(tryEl, { opacity: 1, duration: 0.3, delay: 0.2 });
+      chips.forEach((chip, idx) => {
+        gsap.to(chip, {
+          opacity: 1,
+          y: 0,
+          duration: 0.35,
+          delay: 0.4 + idx * 0.1,
+          ease: 'back.out(1.5)'
+        });
+      });
+
+      // Bind chip clicks
+      chips.forEach(chip => {
+        if (chip._clickBound) return;
+        chip._clickBound = true;
+        chip.addEventListener('click', () => {
+          const text = chip.textContent;
+
+          // Fade out try-asking + all chips
+          gsap.to(tryEl, { opacity: 0, duration: 0.2 });
+          gsap.to(chipsWrap, { opacity: 0, height: 0, duration: 0.3, ease: 'power2.in', onComplete: () => {
+            chipsWrap.style.display = 'none';
+          }});
+
+          // Add user bubble
+          const bubble = document.createElement('div');
+          bubble.className = 'user-bubble user-bubble-dynamic';
+          bubble.innerHTML = '<span>' + text + '</span>';
+          bubble.style.opacity = '0';
+          body.appendChild(bubble);
+          gsap.to(bubble, { opacity: 1, duration: 0.3, delay: 0.3 });
+
+          // After bubble appears, scroll up and show typing dots
+          setTimeout(() => {
+            body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+
+            // Add typing indicator
+            const typing = document.createElement('div');
+            typing.className = 'typing-indicator';
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            typing.style.opacity = '0';
+            body.appendChild(typing);
+            gsap.to(typing, { opacity: 1, duration: 0.2 });
+            body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+
+            // Type out AI response letter by letter, then show product card
+            setTimeout(() => {
+              // Remove typing dots
+              gsap.to(typing, { opacity: 0, duration: 0.2, onComplete: () => typing.remove() });
+
+              // Add AI response container
+              const aiReply = document.createElement('div');
+              aiReply.className = 'ai-msg';
+              aiReply.innerHTML = '';
+              body.appendChild(aiReply);
+
+              const replyText = "We've found 3 fruits that fits your budget ₹200";
+              let ri = 0;
+              function typeReply() {
+                if (ri < replyText.length) {
+                  aiReply.innerHTML += replyText[ri];
+                  ri++;
+                  body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+                  setTimeout(typeReply, 28);
+                } else {
+                  // Typing done — drop product card
+                  const card = document.createElement('div');
+                  card.className = 'ai-product-card';
+                  card.style.opacity = '0';
+                  card.style.transform = 'translateY(20px)';
+                  card.innerHTML = '<div class="card-header"><span>Best Match</span><span class="view-all">View all</span></div>'
+                    + '<div class="ai-product-items">'
+                    + '<div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image.png" alt=""></div><div class="prod-details"><div class="prod-name">Super Banana</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹40</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>'
+                    + '<div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-1.png" alt=""></div><div class="prod-details"><div class="prod-name">Big Avocado</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹90</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>'
+                    + '<div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-2.png" alt=""></div><div class="prod-details"><div class="prod-name">Cherry</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹85</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>'
+                    + '</div>'
+                    + '<div class="card-footer"><div><span class="total-label">Total value</span><span class="total-value">₹195</span></div><button class="add-to-cart-btn">Add to cart</button></div>';
+                  body.appendChild(card);
+                  gsap.to(card, { opacity: 1, y: 0, duration: 0.5, delay: 0.3, ease: 'back.out(1.2)' });
+                  setTimeout(() => body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' }), 400);
+                  setTimeout(() => body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' }), 900);
+
+                  // Bind View all → Screen 6 (Result, idx 8)
+                  setTimeout(() => {
+                    const viewAll = card.querySelector('.view-all');
+                    if (viewAll) {
+                      viewAll.style.cursor = 'pointer';
+                      viewAll.addEventListener('click', () => showScreen(4));
+                    }
+                  }, 800);
+
+                  // Bind Add to cart → Added
+                  setTimeout(() => {
+                    const addBtn = card.querySelector('.add-to-cart-btn');
+                    if (addBtn) {
+                      addBtn.addEventListener('click', () => {
+                        const footer = card.querySelector('.card-footer');
+                        if (!footer) return;
+                        // Replace total label
+                        const totalLabel = footer.querySelector('.total-label');
+                        if (totalLabel) totalLabel.textContent = 'Total value';
+                        // Replace button with Added, then switch to Go to cart after 1s
+                        addBtn.outerHTML = '<div class="added-btn" id="addedBtnDynamic"><svg viewBox="0 0 16 16" fill="currentColor" style="width:14px;height:14px"><path d="M13.485 3.515a1 1 0 010 1.414l-7.07 7.07a1 1 0 01-1.415 0l-3.535-3.535a1 1 0 111.414-1.414L5.7 9.879l6.364-6.364a1 1 0 011.414 0z"/></svg>Added</div>';
+                        setTimeout(() => {
+                          const addedEl = card.querySelector('#addedBtnDynamic');
+                          if (addedEl) {
+                            addedEl.outerHTML = '<button class="add-to-cart-btn go-to-cart-btn" style="padding:8px 16px">Go to cart</button>';
+                            setTimeout(() => {
+                              const goBtn = card.querySelector('.go-to-cart-btn');
+                              if (goBtn) goBtn.addEventListener('click', () => showScreen(5));
+                            }, 50);
+                          }
+                        }, 1000);
+                      });
+                    }
+                  }, 800);
+                }
+              }
+              setTimeout(typeReply, 300);
+            }, 800);
+          }, 700);
+        });
+      });
+    }
+  }
+
+  setTimeout(typeChar, 300);
+
+  // Bind voice icon → immersive AI transition
+  const voiceIcon = screen.querySelector('.voice-trigger');
+  if (voiceIcon && !voiceIcon._bound) {
+    voiceIcon._bound = true;
+    voiceIcon.addEventListener('click', () => {
+      triggerVoiceTransition(screen);
+    });
+  }
+}
+
+// Voice immersive typing sequence
+function animateVoiceImmersive() {
+  const screen = document.querySelector('#screensContainer .proto-screen[data-idx="3"]');
+  if (!screen) return;
+  const chat = screen.querySelector('.voice-immersive-chat');
+  if (!chat) return;
+
+  // Reset
+  chat.innerHTML = '';
+  chat.scrollTop = 0;
+
+  function typeText(text, el, speed, cb) {
+    let i = 0;
+    function t() {
+      if (i < text.length) {
+        if (text[i] === '\n') el.innerHTML += '<br>';
+        else el.innerHTML += text[i];
+        i++;
+        chat.scrollTop = chat.scrollHeight;
+        setTimeout(t, speed);
+      } else if (cb) cb();
+    }
+    t();
+  }
+
+  // Step 1: Blink AI greeting
+  const msg1 = document.createElement('div');
+  msg1.className = 'ai-msg';
+  msg1.style.marginTop = '8px';
+  msg1.innerHTML = '<span class="label">Blink AI:</span> ';
+  chat.appendChild(msg1);
+
+  const msg1Span = document.createElement('span');
+  msg1.appendChild(msg1Span);
+
+  setTimeout(() => {
+    typeText("Hi, I am Blink AI, You can speak and give me instructions to do the Job for you", msg1Span, 25, () => {
+
+      // Step 2: 0.5s pause then user message
+      setTimeout(() => {
+        const msg2 = document.createElement('div');
+        msg2.className = 'user-msg';
+        msg2.style.opacity = '0';
+        msg2.innerHTML = '<span class="label">You:</span> ';
+        const msg2Span = document.createElement('span');
+        msg2.appendChild(msg2Span);
+        chat.appendChild(msg2);
+        gsap.to(msg2, { opacity: 1, duration: 0.2 });
+
+        typeText("Fruits under ₹200", msg2Span, 30, () => {
+
+          // Step 3: Scroll first message away, type AI response
+          setTimeout(() => {
+            gsap.to(msg1, { height: 0, opacity: 0, marginTop: 0, marginBottom: 0, duration: 0.4, ease: 'power2.in', onComplete: () => {
+              msg1.style.display = 'none';
+              chat.scrollTop = chat.scrollHeight;
+            }});
+
+            setTimeout(() => {
+              const msg3 = document.createElement('div');
+              msg3.className = 'ai-msg';
+              msg3.innerHTML = '<span class="label">Blink AI:</span> ';
+              const msg3Span = document.createElement('span');
+              msg3.appendChild(msg3Span);
+              chat.appendChild(msg3);
+
+              typeText("We've found 3 fruits that fits your budget ₹200", msg3Span, 25, () => {
+
+                // Step 4: Drop product card
+                const card = document.createElement('div');
+                card.className = 'ai-product-card';
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.innerHTML = '<div class="card-header"><span>Best Match</span><span class="view-all" style="cursor:pointer">View all</span></div>'
+                  + '<div class="ai-product-items">'
+                  + '<div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image.png" alt=""></div><div class="prod-details"><div class="prod-name">Super Banana</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹40</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>'
+                  + '<div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-1.png" alt=""></div><div class="prod-details"><div class="prod-name">Big Avocado</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹90</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>'
+                  + '<div class="ai-product-row"><div class="prod-thumb"><img src="Assets/Product Image-2.png" alt=""></div><div class="prod-details"><div class="prod-name">Cherry</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="prod-price">₹85</div><div class="quantity-control"><div class="qty-btn minus">−</div><div class="qty-num">1</div><div class="qty-btn plus">+</div></div></div></div></div>'
+                  + '</div>'
+                  + '<div class="card-footer"><div><span class="total-label">Total value</span><span class="total-value">₹195</span></div><button class="add-to-cart-btn">Add to cart</button></div>';
+                chat.appendChild(card);
+                gsap.to(card, { opacity: 1, y: 0, duration: 0.5, delay: 0.3, ease: 'back.out(1.2)' });
+                setTimeout(() => chat.scrollTop = chat.scrollHeight, 400);
+                setTimeout(() => chat.scrollTop = chat.scrollHeight, 900);
+
+                // Bind View all → Screen 6 (idx 6)
+                setTimeout(() => {
+                  const va = card.querySelector('.view-all');
+                  if (va) va.addEventListener('click', () => showScreen(4));
+                }, 800);
+
+                // Bind Add to cart → Added → Go to cart
+                setTimeout(() => {
+                  const addBtn = card.querySelector('.add-to-cart-btn');
+                  if (addBtn) {
+                    addBtn.addEventListener('click', () => {
+                      const footer = card.querySelector('.card-footer');
+                      const totalLabel = footer ? footer.querySelector('.total-label') : null;
+                      if (totalLabel) totalLabel.textContent = 'Total value';
+                      addBtn.outerHTML = '<div class="added-btn" id="voiceAddedBtn"><svg viewBox="0 0 16 16" fill="currentColor" style="width:14px;height:14px"><path d="M13.485 3.515a1 1 0 010 1.414l-7.07 7.07a1 1 0 01-1.415 0l-3.535-3.535a1 1 0 111.414-1.414L5.7 9.879l6.364-6.364a1 1 0 011.414 0z"/></svg>Added</div>';
+                      setTimeout(() => {
+                        const addedEl = card.querySelector('#voiceAddedBtn');
+                        if (addedEl) {
+                          addedEl.outerHTML = '<button class="add-to-cart-btn voice-go-cart" style="padding:8px 16px">Go to cart</button>';
+                          setTimeout(() => {
+                            const goBtn = card.querySelector('.voice-go-cart');
+                            if (goBtn) goBtn.addEventListener('click', () => showScreen(5));
+                          }, 50);
+                        }
+                      }, 1000);
+                    });
+                  }
+                }, 800);
+              });
+            }, 400);
+          }, 300);
+        });
+      }, 500);
+    });
+  }, 400);
+}
+
+// Voice transition — expanding ripple + orb glow from icon position
+function triggerVoiceTransition(screen) {
+  const voiceIcon = screen.querySelector('.voice-trigger');
+  if (!voiceIcon) return;
+
+  const rect = voiceIcon.getBoundingClientRect();
+  const phoneRect = screen.closest('.phone-frame').getBoundingClientRect();
+  const cx = rect.left - phoneRect.left + rect.width / 2;
+  const cy = rect.top - phoneRect.top + rect.height / 2;
+  const maxR = Math.max(phoneRect.width, phoneRect.height) * 1.5;
+
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'voice-transition';
+
+  // Pulse rings
+  for (let i = 0; i < 3; i++) {
+    const ring = document.createElement('div');
+    ring.className = 'pulse-ring';
+    ring.style.left = (cx - 20) + 'px';
+    ring.style.top = (cy - 20) + 'px';
+    ring.style.width = '40px';
+    ring.style.height = '40px';
+    overlay.appendChild(ring);
+    gsap.to(ring, {
+      opacity: 0.6, scale: 3 + i, duration: 0.4,
+      delay: i * 0.1, ease: 'power2.out',
+      onComplete: () => gsap.to(ring, { opacity: 0, duration: 0.3 })
+    });
+  }
+
+  // Center orb glow
+  const orb = document.createElement('div');
+  orb.className = 'orb-glow';
+  orb.style.left = (cx - 40) + 'px';
+  orb.style.top = (cy - 40) + 'px';
+  overlay.appendChild(orb);
+  gsap.to(orb, { opacity: 1, scale: 2, duration: 0.5, delay: 0.15, ease: 'power2.out' });
+
+  // Expanding ripple that fills the screen
+  const ripple = document.createElement('div');
+  ripple.className = 'ripple';
+  ripple.style.left = (cx - maxR) + 'px';
+  ripple.style.top = (cy - maxR) + 'px';
+  ripple.style.width = (maxR * 2) + 'px';
+  ripple.style.height = (maxR * 2) + 'px';
+  overlay.appendChild(ripple);
+
+  screen.closest('.proto-screen').appendChild(overlay);
+
+  gsap.to(ripple, {
+    scale: 1, opacity: 1, duration: 0.6, delay: 0.2, ease: 'power3.in',
+    onComplete: () => {
+      overlay.remove();
+      showScreen(3); // Voice mode
+    }
+  });
+}
+
+function animateHero() {
+  gsap.from('.hero-tag', { opacity: 0, y: 15, duration: 0.6, delay: 0.1 });
+  gsap.from('.hero-title', { opacity: 0, y: 25, duration: 0.7, delay: 0.25 });
+  gsap.from('.hero-desc', { opacity: 0, y: 20, duration: 0.6, delay: 0.45 });
+  gsap.from('.hero-meta', { opacity: 0, y: 15, duration: 0.5, delay: 0.6 });
+  gsap.from('.proto-viewer', { opacity: 0, x: 40, duration: 0.8, delay: 0.3, ease: 'power2.out' });
+}
+
+// Splash → Home transition
+function playSplashTransition() {
+  splashPlayed = true;
+  const splashScreen = document.querySelector('#screensContainer .proto-screen[data-idx="0"]');
+  const logoWrap = splashScreen ? splashScreen.querySelector('.splash-logo-wrap') : null;
+  const version = splashScreen ? splashScreen.querySelector('.splash-version') : null;
+
+  if (!logoWrap) return;
+
+  // Logo zooms in infinitely (accelerating) over 1s
+  const tl = gsap.timeline();
+
+  // Zoom the logo continuously — starts slow, accelerates
+  tl.to(logoWrap, {
+    scale: 50,
+    opacity: 0,
+    duration: 1,
+    ease: 'power3.in',
+    delay: 0.15
+  });
+
+  // Fade out version text
+  if (version) {
+    tl.to(version, { opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.15);
+  }
+
+  // At ~0.8s, swap to home screen with a smooth reveal
+  tl.call(() => {
+    const homeScreen = document.querySelector('#screensContainer .proto-screen[data-idx="1"]');
+    if (homeScreen) {
+      homeScreen.style.transition = 'none';
+      homeScreen.style.opacity = '1';
+      homeScreen.style.transform = 'scale(1)';
+      homeScreen.style.pointerEvents = 'auto';
+      homeScreen.style.zIndex = '4';
+    }
+  }, [], '-=0.2');
+
+  // Fade out the splash completely
+  tl.to(splashScreen, {
+    opacity: 0,
+    duration: 0.2,
+    ease: 'power2.out',
+    onComplete: () => {
+      // Clean up and officially switch to screen 1
+      splashScreen.classList.remove('active');
+      splashScreen.style.zIndex = '1';
+      const homeScreen = document.querySelector('#screensContainer .proto-screen[data-idx="1"]');
+      if (homeScreen) {
+        homeScreen.classList.add('active');
+        homeScreen.style.transition = '';
+      }
+      currentScreen = 1;
+
+      // Update UI indicators
+      document.getElementById('screenNum').textContent = `${screens[1].num} / ${screens[totalScreens-1].num}`;
+      document.getElementById('screenName').textContent = screens[1].name;
+      document.querySelectorAll('#dotProgress .dot').forEach((d, i) => d.classList.toggle('active', i === 1));
+      document.getElementById('prevBtn').classList.toggle('disabled', false);
+      updateRationale(1);
+
+      // Bind Home screen handlers + trigger popup after 1s
+      bindHomeScreen();
+      window._popupTimer = setTimeout(() => {
+        const hs = document.querySelector('#screensContainer .proto-screen[data-idx="1"]');
+        if (hs) {
+          const ov = hs.querySelector('.blinkai-overlay');
+          if (ov) ov.classList.add('visible');
+        }
+      }, 1000);
+    }
+  }, '-=0.1');
+}
+
+// Wave animation handled by CSS @keyframes waveShift
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
