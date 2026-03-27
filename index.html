@@ -968,9 +968,124 @@
       .rationale-inner { flex-direction: column; gap: 24px; }
       .rationale-section { padding: 40px 24px; }
     }
+
+    /* ════════════════════════════════════
+       TOP TABS
+       ════════════════════════════════════ */
+    .top-tabs {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(10,10,15,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid #1a1a2e;
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px 24px; gap: 8px;
+    }
+    .top-tab {
+      padding: 8px 24px; border-radius: 100px; font-size: 13px; font-weight: 600;
+      color: #777; cursor: pointer; transition: all 0.25s; border: 1px solid transparent;
+      font-family: var(--font-primary); letter-spacing: 0.3px;
+    }
+    .top-tab:hover { color: #aaa; }
+    .top-tab.active { color: #fff; background: rgba(255,255,255,0.08); border-color: #2a2a3e; }
+    .tab-page { display: none; }
+    .tab-page.active { display: block; }
+    body { padding-top: 52px; }
+
+    /* ════════════════════════════════════
+       RESEARCH PAGE
+       ════════════════════════════════════ */
+    .research-page { max-width: 860px; margin: 0 auto; padding: 60px 40px 100px; }
+    .research-page .r-cover {
+      text-align: center; padding: 80px 0 60px; border-bottom: 1px solid #1a1a2e; margin-bottom: 60px;
+    }
+    .research-page .r-cover h1 { font-size: 42px; font-weight: 800; color: #fff; margin-bottom: 12px; }
+    .research-page .r-cover h1 .green { color: var(--primary-green); }
+    .research-page .r-cover p { font-size: 15px; color: #777; line-height: 1.6; }
+    .research-page .r-meta-row {
+      display: flex; gap: 32px; justify-content: center; margin-top: 24px; flex-wrap: wrap;
+    }
+    .research-page .r-meta-item { text-align: center; }
+    .research-page .r-meta-item .label { font-size: 10px; color: #555; letter-spacing: 1.5px; text-transform: uppercase; }
+    .research-page .r-meta-item .value { font-size: 13px; color: #aaa; margin-top: 2px; }
+
+    .r-section { margin-bottom: 56px; }
+    .r-section-num { font-size: 11px; color: var(--primary-green); letter-spacing: 2px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+    .r-section h2 { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 16px; line-height: 1.3; }
+    .r-section h3 { font-size: 18px; font-weight: 600; color: #ddd; margin: 20px 0 10px; }
+    .r-section p { font-size: 14px; color: #999; line-height: 1.8; margin-bottom: 12px; }
+    .r-section .highlight-box {
+      background: rgba(255,255,255,0.03); border: 1px solid #1a1a2e; border-radius: 12px;
+      padding: 20px; margin: 16px 0;
+    }
+    .r-section .highlight-box h4 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .r-section .highlight-box p { font-size: 13px; margin-bottom: 4px; }
+    .r-section ul { padding-left: 0; margin: 12px 0; }
+    .r-section ul li {
+      list-style: none; padding: 8px 0; font-size: 14px; color: #888;
+      display: flex; gap: 10px; border-bottom: 1px solid #111;
+    }
+    .r-section ul li::before { content: '→'; color: var(--primary-green); font-weight: 700; flex-shrink: 0; }
+    .r-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .r-table th {
+      text-align: left; padding: 10px 12px; background: rgba(255,255,255,0.04);
+      color: #aaa; font-weight: 600; border-bottom: 1px solid #1a1a2e; font-size: 11px;
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .r-table td { padding: 10px 12px; color: #888; border-bottom: 1px solid #111; }
+    .r-table tr:hover td { color: #bbb; }
+    .r-quote {
+      border-left: 3px solid var(--primary-green); padding: 12px 20px; margin: 16px 0;
+      font-style: italic; color: #aaa; font-size: 14px; background: rgba(49,134,21,0.04);
+      border-radius: 0 8px 8px 0;
+    }
+    .r-principle-card {
+      background: rgba(255,255,255,0.03); border: 1px solid #1a1a2e; border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 12px;
+    }
+    .r-principle-card h4 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .r-principle-card p { font-size: 13px; margin: 0; }
+    .r-do-dont { display: flex; gap: 20px; margin: 16px 0; }
+    .r-do-dont > div { flex: 1; border-radius: 12px; padding: 16px; }
+    .r-do-dont .do-col { background: rgba(49,134,21,0.06); border: 1px solid rgba(49,134,21,0.15); }
+    .r-do-dont .dont-col { background: rgba(229,57,53,0.06); border: 1px solid rgba(229,57,53,0.15); }
+    .r-do-dont h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .r-do-dont .do-col h4 { color: var(--primary-green); }
+    .r-do-dont .dont-col h4 { color: var(--error-red); }
+    .r-do-dont li { font-size: 12px; color: #888; padding: 4px 0; border: none; }
+    .r-do-dont li::before { display: none; }
+    .r-color-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
+    .r-color-swatch {
+      width: 80px; text-align: center; font-size: 10px; color: #888;
+    }
+    .r-color-swatch .swatch {
+      width: 80px; height: 48px; border-radius: 8px; margin-bottom: 6px; border: 1px solid #222;
+    }
+    .r-roadmap-phase {
+      display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px;
+    }
+    .r-roadmap-phase .phase-badge {
+      padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
+      flex-shrink: 0; min-width: 50px; text-align: center;
+    }
+    .phase-now { background: rgba(49,134,21,0.15); color: var(--primary-green); }
+    .phase-soon { background: rgba(123,97,255,0.15); color: #7B61FF; }
+    .phase-next { background: rgba(255,107,53,0.15); color: #FF6B35; }
+    .phase-future { background: rgba(255,215,0,0.12); color: #FFD700; }
+    @media (max-width: 800px) {
+      .research-page { padding: 40px 20px 80px; }
+      .r-do-dont { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
+
+<!-- ═══════════ TOP TABS ═══════════ -->
+<div class="top-tabs">
+  <div class="top-tab active" onclick="switchTab('prototype')">Prototype & Screens</div>
+  <div class="top-tab" onclick="switchTab('research')">Research Document</div>
+</div>
+
+<!-- ═══════════ TAB 1: PROTOTYPE & SCREENS ═══════════ -->
+<div class="tab-page active" id="tab-prototype">
 
 <!-- ═══════════════════════════════════════
      HERO — Left Info + Right Prototype
@@ -1546,6 +1661,285 @@
   </div>
 </div>
 <!-- END screen templates -->
+
+</div><!-- END TAB 1: PROTOTYPE & SCREENS -->
+
+<!-- ═══════════ TAB 2: RESEARCH DOCUMENT ═══════════ -->
+<div class="tab-page" id="tab-research">
+<div class="research-page">
+
+  <!-- Cover -->
+  <div class="r-cover">
+    <h1>Blink<span class="green">Mart</span></h1>
+    <p>Smart Shopping, Powered by AI — UX Research & Strategy Document</p>
+    <div class="r-meta-row">
+      <div class="r-meta-item"><span class="label">PROJECT</span><span class="value">AI Shopping Assistant</span></div>
+      <div class="r-meta-item"><span class="label">PLATFORM</span><span class="value">Mobile Application</span></div>
+      <div class="r-meta-item"><span class="label">DOMAIN</span><span class="value">Quick-Commerce</span></div>
+      <div class="r-meta-item"><span class="label">ROLE</span><span class="value">UX Designer</span></div>
+      <div class="r-meta-item"><span class="label">TOOLS</span><span class="value">Figma, Claude, ChatGPT, Pencil</span></div>
+    </div>
+  </div>
+
+  <!-- 01 Project Overview -->
+  <div class="r-section">
+    <div class="r-section-num">01 — PROJECT OVERVIEW</div>
+    <h2>Context & Problem</h2>
+    <p>Quick-commerce has solved the delivery speed problem — groceries arrive in 10 minutes. But the cart-building experience remains stuck in 2015: search, browse, tap, repeat. For a typical weekly grocery run of 10-15 items, users make 40-60 individual interactions before reaching checkout.</p>
+    <p>BlinkMart AI is a conversational shopping assistant embedded directly in the app. Users describe what they want in natural language — "fruits under ₹200" or "high protein snacks for the week" — and the assistant generates a complete, editable cart in seconds.</p>
+
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin:24px 0">
+      <div class="highlight-box" style="flex:1;min-width:200px">
+        <h4 style="color:var(--error-red)">Problem</h4>
+        <p>Users think in intent and goals, but apps force item-by-item search — creating friction, decision fatigue, and slow checkout.</p>
+      </div>
+      <div class="highlight-box" style="flex:1;min-width:200px">
+        <h4 style="color:var(--primary-green)">Solution</h4>
+        <p>An AI assistant that understands natural language, generates a full cart from a single sentence, and lets users refine via conversation.</p>
+      </div>
+      <div class="highlight-box" style="flex:1;min-width:200px">
+        <h4 style="color:#7B61FF">Goal</h4>
+        <p>Reduce cart-building to under 2 minutes. Maintain full user control. Build trust through transparency, not automation.</p>
+      </div>
+    </div>
+
+    <h3>Problem Statement</h3>
+    <p>Most grocery apps are built around search and categories — which works well when users know exact product names. But in reality, users think at a higher level: "I need healthy snacks for the week" or "get me fruits within my budget." This mismatch creates unnecessary friction, especially for frequent shoppers who place orders 3-5 times per week.</p>
+    <p>Introducing AI creates new design challenges — users may distrust automated suggestions if they can't understand why items were chosen, or if they can't easily override results. The core design problem is: how do you make AI feel helpful and trustworthy, not automatic and imposing?</p>
+
+    <h3>Business Opportunity</h3>
+    <ul>
+      <li><strong style="color:#fff">Conversion Rate:</strong> Easier carts = more checkouts</li>
+      <li><strong style="color:#fff">Cart Value:</strong> AI surfaces more relevant items</li>
+      <li><strong style="color:#fff">Retention:</strong> Speed builds reorder habits</li>
+      <li><strong style="color:#fff">Differentiation:</strong> First intent-based experience in India</li>
+    </ul>
+  </div>
+
+  <!-- 02 Research -->
+  <div class="r-section">
+    <div class="r-section-num">02 — RESEARCH & COMPETITIVE ANALYSIS</div>
+    <h2>Current User Journey: Where It Breaks</h2>
+    <p>Through observation and interviews with frequent grocery app users, a consistent pattern emerged. The journey has too many micro-decisions.</p>
+
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:20px 0;font-size:13px;color:#888">
+      <span style="background:#1a1a2e;padding:6px 12px;border-radius:8px;color:#aaa">Open App</span><span style="color:#555">→</span>
+      <span style="background:#1a1a2e;padding:6px 12px;border-radius:8px;color:#aaa">Search Item</span><span style="color:#555">→</span>
+      <span style="background:#1a1a2e;padding:6px 12px;border-radius:8px;color:#aaa">Browse 50+ results</span><span style="color:#555">→</span>
+      <span style="background:#1a1a2e;padding:6px 12px;border-radius:8px;color:#aaa">Add to Cart (×10)</span><span style="color:#555">→</span>
+      <span style="background:#1a1a2e;padding:6px 12px;border-radius:8px;color:#aaa">Checkout (5-8 min)</span>
+    </div>
+
+    <div class="r-quote">Users think in intent, not product names. "I want healthy snacks" is not a search query — it's a goal. Current apps have no mechanism to understand this.</div>
+
+    <h3>Pain Points</h3>
+    <ul>
+      <li><strong style="color:#fff">Too Many Searches:</strong> Each item requires a separate search query — multiplied across 8-12 items per order</li>
+      <li><strong style="color:#fff">Decision Fatigue:</strong> Too many similar products with minimal differentiation</li>
+      <li><strong style="color:#fff">Intent vs. Name Gap:</strong> Users know what they want ("high protein snack") but don't know exact product names</li>
+      <li><strong style="color:#fff">Time-Consuming:</strong> Average cart-building takes 5-8 minutes</li>
+    </ul>
+
+    <h3>Competitive Landscape</h3>
+    <table class="r-table">
+      <tr><th>App</th><th>Core UX</th><th>AI Features</th><th>Gap</th></tr>
+      <tr><td style="color:#fff">Blinkit</td><td>Search + categories</td><td>Basic recommendations</td><td>No conversational shopping</td></tr>
+      <tr><td style="color:#fff">Zepto</td><td>Search + filters</td><td>Recently bought</td><td>No AI cart generation</td></tr>
+      <tr><td style="color:#fff">Instamart</td><td>Category browsing</td><td>Suggestions panel</td><td>No intent-based shopping</td></tr>
+      <tr><td style="color:#fff">BigBasket</td><td>Filters + saved lists</td><td>Smart basket</td><td>No chat/voice assistant</td></tr>
+      <tr><td style="color:var(--primary-green);font-weight:700">BlinkMart</td><td style="color:var(--primary-green)">Search + AI Assistant</td><td style="color:var(--primary-green)">Full conversational AI</td><td style="color:var(--primary-green)">This project</td></tr>
+    </table>
+  </div>
+
+  <!-- 03 Persona -->
+  <div class="r-section">
+    <div class="r-section-num">03 — USER PERSONA</div>
+    <h2>Key Insight: Users Think in Intentions, Not SKUs</h2>
+
+    <div class="highlight-box">
+      <h4>Primary Persona: Rahul Sharma</h4>
+      <p>Age: 28 | Orders: 3-4x/week | Device: iPhone 15 | Tech Comfort: High | Software Engineer</p>
+    </div>
+    <div class="r-quote">"I just want to tell the app what I need and have it ready to checkout. I don't want to search 12 times."</div>
+
+    <h3>Needs</h3>
+    <ul>
+      <li>Fast cart creation under 2 minutes</li>
+      <li>Budget-aware suggestions (₹ limits)</li>
+      <li>Healthy/high-protein options</li>
+      <li>No repetitive searching</li>
+    </ul>
+
+    <h3>Secondary Personas</h3>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0">
+      <div class="highlight-box" style="flex:1;min-width:200px"><h4>Fitness-Focused Priya</h4><p>Needs high-protein, low-calorie options. AI request: "healthy snacks under 200 cal"</p></div>
+      <div class="highlight-box" style="flex:1;min-width:200px"><h4>Budget-Conscious Arjun</h4><p>Strict ₹500 weekly budget. AI request: "weekly veggies under ₹300"</p></div>
+      <div class="highlight-box" style="flex:1;min-width:200px"><h4>New User Meera</h4><p>Doesn't know product names on the platform yet. Benefits most from AI guidance.</p></div>
+    </div>
+  </div>
+
+  <!-- 04 Mental Models -->
+  <div class="r-section">
+    <div class="r-section-num">04 — MENTAL MODELS</div>
+    <h2>How Users Actually Think</h2>
+
+    <div style="display:flex;gap:20px;margin:20px 0;flex-wrap:wrap">
+      <div class="highlight-box" style="flex:1;min-width:250px;border-color:rgba(229,57,53,0.2)">
+        <h4 style="color:var(--error-red)">How Current Apps Think (Wrong)</h4>
+        <ul style="margin:8px 0 0">
+          <li>User must know exact product name</li>
+          <li>Search one item at a time</li>
+          <li>Decide from 30+ results per search</li>
+          <li>Remember what's already added</li>
+        </ul>
+        <p style="margin-top:8px;font-style:italic;color:#666">Example: "Yoga Bar Protein Almond Fudge 38g"</p>
+      </div>
+      <div class="highlight-box" style="flex:1;min-width:250px;border-color:rgba(49,134,21,0.2)">
+        <h4 style="color:var(--primary-green)">How Users Actually Think (Correct)</h4>
+        <ul style="margin:8px 0 0">
+          <li>Think in goals and outcomes</li>
+          <li>Know what they want to achieve</li>
+          <li>Think about the full list at once</li>
+          <li>Know their constraints (budget, diet)</li>
+        </ul>
+        <p style="margin-top:8px;font-style:italic;color:#666">Example: "High protein snacks for the week"</p>
+      </div>
+    </div>
+    <div class="r-quote">The assistant must map intent (what users say) to inventory (what the app has) — not the other way around. This reframes the UX from "search and filter" to "describe and receive."</div>
+  </div>
+
+  <!-- 05 Design Principles -->
+  <div class="r-section">
+    <div class="r-section-num">05 — DESIGN PRINCIPLES & AI STRATEGY</div>
+    <h2>Core Principles</h2>
+    <div class="r-principle-card"><h4>1. Assist, Not Replace</h4><p>AI suggests — users decide. Manual shopping is always one tap away.</p></div>
+    <div class="r-principle-card"><h4>2. Show Your Work</h4><p>Every suggestion shows a confidence label: Best Match, Suggested, or Alternative. No black-box results.</p></div>
+    <div class="r-principle-card"><h4>3. Always Editable</h4><p>Results can be modified via conversation, card edits, or reverting to manual search — zero lock-in.</p></div>
+    <div class="r-principle-card"><h4>4. Confidence Transparency</h4><p>3-tier confidence system tells users how sure the AI is about each pick.</p></div>
+    <div class="r-principle-card"><h4>5. Review Before Add</h4><p>Users always review the generated cart before it's added. No surprise changes.</p></div>
+    <div class="r-principle-card"><h4>6. Conversational Editing</h4><p>"Remove cherry and add something of the same price" — the AI understands follow-up refinements.</p></div>
+
+    <h3>AI Control Strategy — Multiple Escape Hatches</h3>
+    <ul>
+      <li><strong style="color:#fff">Chat History Edit:</strong> Reply to any AI message to refine, replace, or remove items</li>
+      <li><strong style="color:#fff">Card-Level Control:</strong> Each product card has edit/remove/swap actions</li>
+      <li><strong style="color:#fff">Manual Cart Edit:</strong> Standard edit flow works exactly as in the non-AI experience</li>
+      <li><strong style="color:#fff">Search Fallback:</strong> Search bar remains accessible — tap to exit AI mode</li>
+    </ul>
+  </div>
+
+  <!-- 06 Interaction Model -->
+  <div class="r-section">
+    <div class="r-section-num">06 — INTERACTION MODEL & USER FLOW</div>
+    <h2>Two Modes</h2>
+    <div style="display:flex;gap:16px;margin:16px 0;flex-wrap:wrap">
+      <div class="highlight-box" style="flex:1;min-width:250px"><h4>Chat Mode</h4><p>Type request in natural language, results appear inline, refine by replying, tap any card to edit. Best for: precision control and typed editing.</p></div>
+      <div class="highlight-box" style="flex:1;min-width:250px"><h4>Immersive Voice Mode</h4><p>Full-screen voice interface, speak request, results shown on confirmation card, voice follow-up refines cart. Best for: hands-free, on-the-go orders.</p></div>
+    </div>
+
+    <h3>Sample Dialogue — "Fruits under ₹200"</h3>
+    <div style="margin:16px 0;font-size:13px">
+      <div style="padding:10px 16px;background:#1a1a2e;border-radius:12px;margin-bottom:8px;color:#aaa"><strong style="color:#fff">User:</strong> fruits under ₹200</div>
+      <div style="padding:10px 16px;background:rgba(49,134,21,0.08);border-radius:12px;margin-bottom:8px;border:1px solid rgba(49,134,21,0.15);color:#aaa"><strong style="color:var(--primary-green)">Blink AI:</strong> We've found 3 fruits that fit your budget — Super Banana ₹40, Big Avocado ₹90, Cherry ₹85. Total: ₹215. Want to add all three, or make changes?</div>
+      <div style="padding:10px 16px;background:#1a1a2e;border-radius:12px;margin-bottom:8px;color:#aaa"><strong style="color:#fff">User:</strong> Remove Cherry and add any other fruit of the same amount</div>
+      <div style="padding:10px 16px;background:rgba(49,134,21,0.08);border-radius:12px;margin-bottom:8px;border:1px solid rgba(49,134,21,0.15);color:#aaa"><strong style="color:var(--primary-green)">Blink AI:</strong> Done! Replaced Cherry (₹85) with Strawberry (₹89). New total: ₹219 — just over budget. Want me to swap something to bring it under ₹200?</div>
+      <div style="padding:10px 16px;background:#1a1a2e;border-radius:12px;margin-bottom:8px;color:#aaa"><strong style="color:#fff">User:</strong> Yes, swap the avocado for something cheaper</div>
+      <div style="padding:10px 16px;background:rgba(49,134,21,0.08);border-radius:12px;border:1px solid rgba(49,134,21,0.15);color:#aaa"><strong style="color:var(--primary-green)">Blink AI:</strong> Swapped Big Avocado (₹90) for Baby Avocado (₹60). New total: ₹189 — within budget! Ready to add these 3 items to your cart?</div>
+    </div>
+  </div>
+
+  <!-- 07 Confidence Labels -->
+  <div class="r-section">
+    <div class="r-section-num">07 — CONFIDENCE LABEL SYSTEM</div>
+    <h2>Three Tiers of Transparency</h2>
+    <div class="r-principle-card" style="border-left:3px solid var(--primary-green)"><h4 style="color:var(--primary-green)">BEST MATCH</h4><p>Highest relevance score. Closest available item to user's stated intent, constraints and budget. Always at top.</p></div>
+    <div class="r-principle-card" style="border-left:3px solid #7B61FF"><h4 style="color:#7B61FF">SUGGESTED</h4><p>Good fit but not top result. Included to offer variety or fill a budget gap.</p></div>
+    <div class="r-principle-card" style="border-left:3px solid #FF6B35"><h4 style="color:#FF6B35">ALTERNATIVE</h4><p>Shown when best match is out of stock, or when user has asked to modify a result and needs a swap option.</p></div>
+  </div>
+
+  <!-- 08 AI Tone -->
+  <div class="r-section">
+    <div class="r-section-num">08 — AI TONE & CONTENT GUIDELINES</div>
+    <h2>Voice & Tone</h2>
+    <div class="r-do-dont">
+      <div class="do-col">
+        <h4>DO</h4>
+        <ul>
+          <li>"We've found 3 fruits that fit your budget"</li>
+          <li>"Added because it fits your ₹200 budget"</li>
+          <li>"Want me to make it a bit cheaper?"</li>
+          <li>"Replaced Cherry with Strawberry — same price"</li>
+          <li>"Tap 'Add to cart' when you're ready"</li>
+        </ul>
+      </div>
+      <div class="dont-col">
+        <h4>DON'T</h4>
+        <ul>
+          <li>"I have selected optimal items for your query"</li>
+          <li>"AI-generated recommendation"</li>
+          <li>"Would you like me to recalibrate the selection?"</li>
+          <li>"Substitution executed successfully"</li>
+          <li>"Proceed to confirm cart finalization"</li>
+        </ul>
+      </div>
+    </div>
+    <h3>Tone Principles</h3>
+    <ul>
+      <li><strong style="color:#fff">Friendly:</strong> Warm but not sycophantic. No "Great choice!" after every tap.</li>
+      <li><strong style="color:#fff">Specific:</strong> Name the items, amounts, and reasons. Vague responses break trust.</li>
+      <li><strong style="color:#fff">Brief:</strong> Every AI message fits in 2 lines or less.</li>
+      <li><strong style="color:#fff">Suggestive:</strong> Always suggest, never command. "Want me to..." not "I will..."</li>
+    </ul>
+  </div>
+
+  <!-- 09 Visual Design -->
+  <div class="r-section">
+    <div class="r-section-num">09 — VISUAL DESIGN & STYLE GUIDE</div>
+    <h2>Colour Palette</h2>
+    <div class="r-color-row">
+      <div class="r-color-swatch"><div class="swatch" style="background:#2ECC40"></div>Brand Green<br>#2ECC40</div>
+      <div class="r-color-swatch"><div class="swatch" style="background:#1A7A28"></div>Dark Green<br>#1A7A28</div>
+      <div class="r-color-swatch"><div class="swatch" style="background:#1C1C2E"></div>AI Dark<br>#1C1C2E</div>
+      <div class="r-color-swatch"><div class="swatch" style="background:#7B61FF"></div>Accent Purple<br>#7B61FF</div>
+      <div class="r-color-swatch"><div class="swatch" style="background:#FF6B35"></div>Accent Orange<br>#FF6B35</div>
+      <div class="r-color-swatch"><div class="swatch" style="background:#F5C518"></div>Highlight<br>#F5C518</div>
+    </div>
+
+    <h3>Typography Scale</h3>
+    <table class="r-table">
+      <tr><th>Usage</th><th>Size</th><th>Weight</th></tr>
+      <tr><td>Page Title</td><td>32pt</td><td>Bold</td></tr>
+      <tr><td>Card Heading</td><td>22pt</td><td>Bold</td></tr>
+      <tr><td>Body Text</td><td>20pt</td><td>Regular</td></tr>
+      <tr><td>Confidence Tag</td><td>17pt</td><td>Bold ALL CAPS</td></tr>
+      <tr><td>Chat Bubble</td><td>20pt</td><td>Regular</td></tr>
+      <tr><td>Helper/Caption</td><td>16pt</td><td>Regular Italic</td></tr>
+    </table>
+  </div>
+
+  <!-- 10 Impact & Roadmap -->
+  <div class="r-section">
+    <div class="r-section-num">10 — EXPECTED IMPACT & ROADMAP</div>
+    <h2>Projected Outcomes</h2>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin:20px 0">
+      <div class="highlight-box" style="flex:1;min-width:140px;text-align:center"><div style="font-size:28px;font-weight:800;color:var(--primary-green)">~60%</div><p style="margin:0">Faster cart creation</p></div>
+      <div class="highlight-box" style="flex:1;min-width:140px;text-align:center"><div style="font-size:28px;font-weight:800;color:#7B61FF">+25%</div><p style="margin:0">Higher cart value</p></div>
+      <div class="highlight-box" style="flex:1;min-width:140px;text-align:center"><div style="font-size:28px;font-weight:800;color:#FF6B35">+18%</div><p style="margin:0">Better retention</p></div>
+      <div class="highlight-box" style="flex:1;min-width:140px;text-align:center"><div style="font-size:28px;font-weight:800;color:#FFD700">+0.4</div><p style="margin:0">App store rating</p></div>
+    </div>
+
+    <h3>Feature Roadmap</h3>
+    <div class="r-roadmap-phase"><span class="phase-badge phase-now">Now</span><div><strong style="color:#fff">v1.0</strong> <span style="color:#888">— Chat mode + Voice mode + Confidence labels + Manual override</span></div></div>
+    <div class="r-roadmap-phase"><span class="phase-badge phase-soon">Soon</span><div><strong style="color:#fff">v1.1</strong> <span style="color:#888">— Personalized suggestions trained on order history</span></div></div>
+    <div class="r-roadmap-phase"><span class="phase-badge phase-soon">Soon</span><div><strong style="color:#fff">v1.2</strong> <span style="color:#888">— Budget mode — set total cart budget before browsing</span></div></div>
+    <div class="r-roadmap-phase"><span class="phase-badge phase-next">Next</span><div><strong style="color:#fff">v1.3</strong> <span style="color:#888">— Diet modes: Keto / Vegan / Diabetic-friendly / High-protein</span></div></div>
+    <div class="r-roadmap-phase"><span class="phase-badge phase-next">Next</span><div><strong style="color:#fff">v2.0</strong> <span style="color:#888">— Saved AI carts — subscribe to weekly auto-generated cart</span></div></div>
+    <div class="r-roadmap-phase"><span class="phase-badge phase-future">Future</span><div><strong style="color:#fff">v2.1</strong> <span style="color:#888">— Smart bundles + combo suggestions with multi-item discount</span></div></div>
+    <div class="r-roadmap-phase"><span class="phase-badge phase-future">Future</span><div><strong style="color:#fff">v2.2</strong> <span style="color:#888">— AI learns from rejections to improve future accuracy</span></div></div>
+  </div>
+
+</div>
+</div><!-- END TAB 2: RESEARCH DOCUMENT -->
 
 <!-- ═══════════════════════════════════════
      JAVASCRIPT — Interactive Prototype
@@ -2415,6 +2809,20 @@ function playSplashTransition() {
 }
 
 // Wave animation handled by CSS @keyframes waveShift
+
+// Tab switching
+function switchTab(tab) {
+  document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  if (tab === 'prototype') {
+    document.querySelector('.top-tab:nth-child(1)').classList.add('active');
+    document.getElementById('tab-prototype').classList.add('active');
+  } else {
+    document.querySelector('.top-tab:nth-child(2)').classList.add('active');
+    document.getElementById('tab-research').classList.add('active');
+    window.scrollTo(0, 0);
+  }
+}
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
